@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sistema de Facturación e Inventario</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- =========================== SIDEBAR =========================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-seal">EP</div>
+      <div class="brand-text">
+        <span class="brand-name" id="brand-name">Empanadas y Pastelitos</span>
+        <span class="brand-sub">Sistema interno</span>
+      </div>
+    </div>
+
+    <nav class="nav-group">
+      <button class="nav-item active" data-view="resumen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Resumen de ventas
+      </button>
+      <button class="nav-item" data-view="facturar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+        Facturar
+      </button>
+      <button class="nav-item" data-view="cotizaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        Cotizaciones
+      </button>
+      <button class="nav-item" data-view="productos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>
+        Productos
+      </button>
+      <button class="nav-item" data-view="entradas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M12 12 3.3 7.2"/><path d="M12 12v10"/><path d="M12 12 20.7 7.2"/><path d="M7 4.5 17 10"/></svg>
+        Entradas
+      </button>
+      <button class="nav-item" data-view="clientes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clientes
+      </button>
+      <button class="nav-item" data-view="cxc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Cuentas por Cobrar
+      </button>
+      <button class="nav-item" data-view="estadocuenta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+        Estado de Cuenta
+      </button>
+
+      <div class="nav-divider"></div>
+
+      <button class="nav-item" data-view="configuracion">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configuración
+      </button>
+    </nav>
+
+    <div class="nav-footer">
+      <button class="nav-item salir" id="btn-salir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Salir
+      </button>
+    </div>
+  </aside>
+
+  <!-- =========================== COLUMNA PRINCIPAL =========================== -->
+  <div class="main-col">
+
+    <header class="topbar">
+      <span class="topbar-title" id="view-heading">Resumen de ventas</span>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date">--</span>
+        <div class="topbar-user">
+          <span class="user-avatar">A</span>
+          <span>Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ---------- RESUMEN DE VENTAS ---------- -->
+      <section class="view active" id="view-resumen">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Resumen de ventas</h1>
+            <p class="view-subtitle">Vista general del negocio, hoy</p>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="card kpi-card">
+            <div class="kpi-label">Ventas de hoy</div>
+            <div class="kpi-value">RD$ 0.00</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Facturas emitidas</div>
+            <div class="kpi-value">0</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Cuentas por cobrar</div>
+            <div class="kpi-value">RD$ 0.00</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Productos con bajo stock</div>
+            <div class="kpi-value">0</div>
+          </div>
+        </div>
+
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          <h3>Gráfico de ventas próximamente</h3>
+          <p>Aquí vamos a agregar el gráfico de ventas por día/semana/mes y el detalle de la actividad reciente.</p>
+        </div>
+      </section>
+
+      <!-- ---------- FACTURAR ---------- -->
+      <section class="view" id="view-facturar">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Facturar</h1>
+            <p class="view-subtitle">Crear una nueva factura de venta</p>
+          </div>
+          <span class="factura-numero-preview" id="factura-numero-preview">FAC-000001</span>
+        </div>
+
+        <div class="banner" id="fact-banner"></div>
+
+        <div class="pos-grid">
+          <!-- Columna izquierda: cliente + productos + carrito -->
+          <div class="pos-left">
+
+            <div class="card pos-block">
+              <label class="pos-block-label">Cliente</label>
+              <div class="autocomplete-wrapper" id="fact-cliente-wrapper">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="fact-cliente-buscar" placeholder="Buscar cliente por nombre, código o teléfono..." autocomplete="off" />
+                </div>
+                <div class="autocomplete-results" id="fact-cliente-resultados"></div>
+              </div>
+              <div class="cliente-chip">
+                <span>👤</span>
+                <span id="fact-cliente-chip-nombre">Consumidor final</span>
+                <button type="button" id="fact-cliente-quitar" title="Quitar cliente" style="display:none;">✕</button>
+              </div>
+            </div>
+
+            <div class="card pos-block">
+              <label class="pos-block-label">Agregar productos</label>
+              <div class="autocomplete-wrapper" id="fact-producto-wrapper">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="fact-producto-buscar" placeholder="Buscar producto por nombre o código..." autocomplete="off" />
+                </div>
+                <div class="autocomplete-results" id="fact-producto-resultados"></div>
+              </div>
+            </div>
+
+            <div class="card table-card">
+              <table class="data-table" id="tabla-carrito">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th style="width:110px;">Precio</th>
+                    <th style="width:90px;">Cant.</th>
+                    <th style="width:120px;">Total línea</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="carrito-tbody"></tbody>
+              </table>
+              <div class="table-empty" id="carrito-empty">
+                <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <h3>El carrito está vacío</h3>
+                <p>Busca un producto arriba y haz clic en él para agregarlo a la factura.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha: resumen y cobro -->
+          <div class="pos-right">
+            <div class="card summary-card">
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="resumen-subtotal">RD$ 0.00</span>
+              </div>
+              <div class="summary-row">
+                <span>Impuesto (<span id="resumen-impuesto-pct">0</span>%)</span>
+                <span id="resumen-impuesto">RD$ 0.00</span>
+              </div>
+              <div class="summary-row summary-total">
+                <span>Total</span>
+                <span id="resumen-total">RD$ 0.00</span>
+              </div>
+
+              <div class="form-field" style="margin-top:16px;">
+                <label>Método de pago</label>
+                <select id="fact-metodo-pago">
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Crédito">Crédito (Cuenta por cobrar)</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label>Notas (opcional)</label>
+                <textarea id="fact-notas" rows="2" placeholder="Referencia, comentario..."></textarea>
+              </div>
+
+              <p class="form-error" id="fact-error"></p>
+
+              <button type="button" class="btn btn-primary btn-cobrar" id="btn-cobrar">
+                Guardar factura
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card table-card" style="margin-top:22px;">
+          <div class="table-card-header">Ventas recientes</div>
+          <table class="data-table" id="tabla-recientes">
+            <thead>
+              <tr>
+                <th>No. Factura</th>
+                <th>Cliente</th>
+                <th>Método</th>
+                <th>Estado</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="recientes-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ---------- COTIZACIONES ---------- -->
+      <section class="view" id="view-cotizaciones">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Cotizaciones</h1>
+            <p class="view-subtitle">Crear y dar seguimiento a cotizaciones</p>
+          </div>
+        </div>
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          <h3>Módulo de cotizaciones</h3>
+          <p>Aquí vamos a listar y crear cotizaciones, y convertirlas en factura con un clic.</p>
+        </div>
+      </section>
+
+      <!-- ---------- PRODUCTOS ---------- -->
+      <section class="view" id="view-productos">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Productos</h1>
+            <p class="view-subtitle">Catálogo, precios y existencias</p>
+          </div>
+          <button class="btn btn-primary" id="btn-nuevo-producto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo producto
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="prod-buscar" placeholder="Buscar por nombre, código o categoría..." />
+          </div>
+          <label class="toggle-inline">
+            <input type="checkbox" id="prod-ver-inactivos" />
+            Ver también inactivos
+          </label>
+        </div>
+
+        <div class="card table-card">
+          <table class="data-table" id="tabla-productos">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th>Unidad</th>
+                <th>Precio</th>
+                <th>Existencia</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="prod-tbody">
+              <!-- filas generadas por JS -->
+            </tbody>
+          </table>
+          <div class="table-empty" id="prod-empty" style="display:none;">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <h3>Todavía no hay productos</h3>
+            <p>Agrega el primero con el botón "Nuevo producto".</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- ENTRADAS ---------- -->
+      <section class="view" id="view-entradas">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Entradas</h1>
+            <p class="view-subtitle">Entradas de inventario / compras</p>
+          </div>
+        </div>
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+          <h3>Módulo de entradas</h3>
+          <p>Aquí vamos a registrar entradas de producto para que la existencia se actualice sola.</p>
+        </div>
+      </section>
+
+      <!-- ---------- CLIENTES ---------- -->
+      <section class="view" id="view-clientes">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Clientes</h1>
+            <p class="view-subtitle">Directorio de clientes</p>
+          </div>
+          <button class="btn btn-primary" id="btn-nuevo-cliente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo cliente
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="cli-buscar" placeholder="Buscar por nombre, código, teléfono o RNC/cédula..." />
+          </div>
+          <label class="toggle-inline">
+            <input type="checkbox" id="cli-ver-inactivos" />
+            Ver también inactivos
+          </label>
+        </div>
+
+        <div class="card table-card">
+          <table class="data-table" id="tabla-clientes">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Teléfono</th>
+                <th>Límite crédito</th>
+                <th>Días crédito</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cli-tbody">
+              <!-- filas generadas por JS -->
+            </tbody>
+          </table>
+          <div class="table-empty" id="cli-empty" style="display:none;">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <h3>Todavía no hay clientes</h3>
+            <p>Agrega el primero con el botón "Nuevo cliente".</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- CxC ---------- -->
+      <section class="view" id="view-cxc">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Cuentas por Cobrar</h1>
+            <p class="view-subtitle">Saldos pendientes de clientes</p>
+          </div>
+        </div>
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <h3>Módulo de CxC</h3>
+          <p>Aquí vamos a ver quién debe, cuánto y desde cuándo, y registrar los abonos.</p>
+        </div>
+      </section>
+
+      <!-- ---------- ESTADO DE CUENTA ---------- -->
+      <section class="view" id="view-estadocuenta">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Estado de Cuenta</h1>
+            <p class="view-subtitle">Historial de cargos y abonos por cliente</p>
+          </div>
+        </div>
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <h3>Estado de cuenta por cliente</h3>
+          <p>Aquí vamos a elegir un cliente y ver su historial completo: facturas a crédito y abonos, con el saldo corriendo — listo para imprimir o enviar. Se activa cuando tengamos Clientes, Facturar y CxC listos.</p>
+        </div>
+      </section>
+
+      <!-- ---------- CONFIGURACION ---------- -->
+      <section class="view" id="view-configuracion">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Configuración</h1>
+            <p class="view-subtitle">Datos de la empresa y preferencias del sistema</p>
+          </div>
+        </div>
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/></svg>
+          <h3>Configuración del sistema</h3>
+          <p>Aquí vamos a poner el nombre de la empresa, logo, moneda, impuesto y numeración de facturas.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- =========================== MODAL: PRODUCTO =========================== -->
+<div class="modal-overlay" id="modal-producto">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-producto-titulo">Nuevo producto</h2>
+      <button class="modal-close" id="modal-producto-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="form-producto" class="modal-body">
+      <input type="hidden" id="f-id" />
+
+      <div class="form-grid">
+        <div class="form-field span-2">
+          <label>Categoría *</label>
+          <select id="f-categoria" required>
+            <option value="Empanadas">Empanadas</option>
+            <option value="Pastelitos">Pastelitos</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Combos">Combos</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Código</label>
+          <div class="input-with-btn">
+            <input type="text" id="f-codigo" placeholder="Se genera solo" />
+            <button type="button" class="btn-mini" id="btn-generar-codigo" title="Generar código">↻</button>
+          </div>
+        </div>
+
+        <div class="form-field span-2">
+          <label>Nombre del producto *</label>
+          <input type="text" id="f-nombre" placeholder="Ej. Empanada de pollo" required />
+        </div>
+
+        <div class="form-field span-2">
+          <label>Descripción / relleno (opcional)</label>
+          <textarea id="f-descripcion" rows="2" placeholder="Ej. Masa de harina, relleno de pollo guisado con especias criollas"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label>Unidad de venta</label>
+          <select id="f-unidad">
+            <option value="Unidad">Unidad</option>
+            <option value="Media docena">Media docena</option>
+            <option value="Docena">Docena</option>
+            <option value="Combo">Combo</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>¿Aplica impuesto?</label>
+          <select id="f-impuesto">
+            <option value="1">Sí</option>
+            <option value="0">No (exento)</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Precio de venta *</label>
+          <div class="input-prefixed">
+            <span class="prefix">RD$</span>
+            <input type="number" id="f-precio" min="0" step="0.01" required />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Costo</label>
+          <div class="input-prefixed">
+            <span class="prefix">RD$</span>
+            <input type="number" id="f-costo" min="0" step="0.01" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Existencia actual</label>
+          <input type="number" id="f-existencia" min="0" step="1" />
+        </div>
+
+        <div class="form-field">
+          <label>Stock mínimo (alerta)</label>
+          <input type="number" id="f-stock-minimo" min="0" step="1" />
+        </div>
+      </div>
+
+      <p class="form-error" id="form-producto-error"></p>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-producto">Cancelar</button>
+      <button type="submit" form="form-producto" class="btn btn-primary">Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================== MODAL: CLIENTE =========================== -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-cliente-titulo">Nuevo cliente</h2>
+      <button class="modal-close" id="modal-cliente-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="form-cliente" class="modal-body">
+      <input type="hidden" id="c-id" />
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Tipo de cliente *</label>
+          <select id="c-tipo" required>
+            <option value="Individual">Individual</option>
+            <option value="Empresa">Empresa</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Código</label>
+          <div class="input-with-btn">
+            <input type="text" id="c-codigo" placeholder="Se genera solo" />
+            <button type="button" class="btn-mini" id="btn-generar-codigo-cliente" title="Generar código">↻</button>
+          </div>
+        </div>
+
+        <div class="form-field span-2">
+          <label id="c-nombre-label">Nombre completo *</label>
+          <input type="text" id="c-nombre" placeholder="Ej. Rosa Martínez" required />
+        </div>
+
+        <div class="form-field">
+          <label>RNC / Cédula</label>
+          <input type="text" id="c-rnc" placeholder="Ej. 001-1234567-8" />
+        </div>
+
+        <div class="form-field">
+          <label>Teléfono principal</label>
+          <input type="text" id="c-telefono" placeholder="Ej. 809-555-1234" />
+        </div>
+
+        <div class="form-field">
+          <label>Teléfono alterno</label>
+          <input type="text" id="c-telefono-alt" placeholder="Opcional" />
+        </div>
+
+        <div class="form-field">
+          <label>Correo electrónico</label>
+          <input type="text" id="c-correo" placeholder="Opcional" />
+        </div>
+
+        <div class="form-field span-2">
+          <label>Dirección</label>
+          <input type="text" id="c-direccion" placeholder="Calle, número, sector, ciudad" />
+        </div>
+
+        <div class="form-field">
+          <label>Límite de crédito</label>
+          <div class="input-prefixed">
+            <span class="prefix">RD$</span>
+            <input type="number" id="c-limite-credito" min="0" step="0.01" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Días de crédito</label>
+          <input type="number" id="c-dias-credito" min="0" step="1" placeholder="Ej. 30" />
+        </div>
+
+        <div class="form-field span-2">
+          <label>Notas (opcional)</label>
+          <textarea id="c-notas" rows="2" placeholder="Cualquier detalle útil sobre este cliente"></textarea>
+        </div>
+      </div>
+
+      <p class="form-error" id="form-cliente-error"></p>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-cliente">Cancelar</button>
+      <button type="submit" form="form-cliente" class="btn btn-primary">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/clientes.js"></script>
+<script src="js/facturar.js"></script>
+</body>
+</html>

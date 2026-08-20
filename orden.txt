@@ -1,0 +1,8 @@
+Productos (todo lo demás lo necesita) listo
+Clientes 
+Facturar (usa productos + clientes)
+Entradas (actualiza inventario)
+Cotizaciones
+CxC (se alimenta de facturas a crédito)
+Configuración
+Conectar el Resumen de ventas al final, cuando ya haya datos reales
