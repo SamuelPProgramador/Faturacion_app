@@ -10,6 +10,7 @@ from db import database
 from db import productos as productos_db
 from db import clientes as clientes_db
 from db import facturas as facturas_db
+from db import entradas as entradas_db
 from db import cotizaciones as cotizaciones_db
 
 
@@ -86,6 +87,18 @@ class Api:
 
     def obtener_factura(self, factura_id):
         return facturas_db.obtener_con_detalle(factura_id)
+
+    # -----------------------------------------------------------
+    # Entradas
+    # -----------------------------------------------------------
+    def crear_entrada(self, datos):
+        return entradas_db.crear(datos)
+
+    def listar_entradas_recientes(self, limite=15):
+        return entradas_db.listar_recientes(limite)
+
+    def listar_entradas_por_producto(self, producto_id, limite=30):
+        return entradas_db.listar_por_producto(producto_id, limite)
 
     # -----------------------------------------------------------
     # Cotizaciones
