@@ -243,6 +243,9 @@ def _migrar_columnas_faltantes(cur):
             "notas": "TEXT",
             "actualizado_en": "TEXT",
         },
+        "cotizaciones": {
+            "factura_id": "INTEGER",
+        },
     }
     for tabla, columnas in columnas_esperadas.items():
         existentes = {row["name"] for row in cur.execute(f"PRAGMA table_info({tabla})")}

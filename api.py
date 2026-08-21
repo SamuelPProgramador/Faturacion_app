@@ -10,6 +10,7 @@ from db import database
 from db import productos as productos_db
 from db import clientes as clientes_db
 from db import facturas as facturas_db
+from db import cotizaciones as cotizaciones_db
 
 
 class Api:
@@ -85,6 +86,27 @@ class Api:
 
     def obtener_factura(self, factura_id):
         return facturas_db.obtener_con_detalle(factura_id)
+
+    # -----------------------------------------------------------
+    # Cotizaciones
+    # -----------------------------------------------------------
+    def previsualizar_numero_cotizacion(self):
+        return cotizaciones_db.previsualizar_numero()
+
+    def crear_cotizacion(self, datos):
+        return cotizaciones_db.crear(datos)
+
+    def listar_cotizaciones_recientes(self, limite=20):
+        return cotizaciones_db.listar_recientes(limite)
+
+    def obtener_cotizacion(self, cotizacion_id):
+        return cotizaciones_db.obtener_con_detalle(cotizacion_id)
+
+    def cambiar_estado_cotizacion(self, cotizacion_id, estado):
+        return cotizaciones_db.cambiar_estado(cotizacion_id, estado)
+
+    def convertir_cotizacion_a_factura(self, cotizacion_id, metodo_pago="Efectivo"):
+        return cotizaciones_db.convertir_a_factura(cotizacion_id, metodo_pago)
 
     # -----------------------------------------------------------
     # Control de la ventana
