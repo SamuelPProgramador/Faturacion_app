@@ -9,6 +9,11 @@
 let carritoCot = [];
 let clienteSeleccionadoCot = null;
 let impuestoPctCot = 0;
+let cotizacionEnEdicionId = null;
+
+const ICONO_PDF = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h1"/><path d="M9 12h1"/><path d="M13 12h2"/><path d="M13 15h2"/></svg>`;
+const ICONO_EDITAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+const ICONO_ELIMINAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`;
 
 function apiCot() {
   return window.pywebview ? window.pywebview.api : null;
@@ -273,11 +278,14 @@ document.getElementById("btn-guardar-cotizacion").addEventListener("click", asyn
   };
 
   const btn = document.getElementById("btn-guardar-cotizacion");
+  const editando = !!cotizacionEnEdicionId;
   btn.disabled = true;
-  btn.textContent = "Guardando...";
+  btn.textContent = editando ? "Guardando cambios..." : "Guardando...";
 
   try {
-    const resultado = await api.crear_cotizacion(datos);
+    const resultado = editando
+      ? await api.actualizar_cotizacion(cotizacionEnEdicionId, datos)
+      : await api.crear_cotizacion(datos);
 
     if (!resultado.ok) {
       errorBox.textContent = resultado.error || "No se pudo guardar la cotización.";
@@ -285,7 +293,12 @@ document.getElementById("btn-guardar-cotizacion").addEventListener("click", asyn
       return;
     }
 
-    mostrarBannerCot(`Cotización ${resultado.numero} guardada — Total ${formatoMonedaCot(resultado.total)}`, "success");
+    if (editando) {
+      mostrarBannerCot(`Cotización actualizada — Total ${formatoMonedaCot(resultado.total)}`, "success");
+    } else {
+      mostrarBannerCot(`Cotización ${resultado.numero} guardada — Total ${formatoMonedaCot(resultado.total)}`, "success");
+    }
+    salirModoEdicionCot();
     reiniciarCotizacion();
     inicializarCotizaciones();
   } catch (err) {
@@ -294,7 +307,7 @@ document.getElementById("btn-guardar-cotizacion").addEventListener("click", asyn
     errorBox.classList.add("active");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Guardar cotización";
+    btn.textContent = cotizacionEnEdicionId ? "Guardar cambios" : "Guardar cotización";
   }
 });
 
@@ -316,6 +329,264 @@ function reiniciarCotizacion() {
   document.getElementById("cot-notas").value = "";
   pintarCarritoCot();
 }
+
+function salirModoEdicionCot() {
+  cotizacionEnEdicionId = null;
+  document.getElementById("cot-modo-edicion").style.display = "none";
+  document.getElementById("btn-guardar-cotizacion").textContent = "Guardar cotización";
+}
+
+document.getElementById("cot-cancelar-edicion").addEventListener("click", (e) => {
+  e.preventDefault();
+  salirModoEdicionCot();
+  reiniciarCotizacion();
+});
+
+async function editarCotizacion(id) {
+  const api = apiCot();
+  if (!api) return;
+
+  const cot = await api.obtener_cotizacion(id);
+  if (!cot) return;
+
+  reiniciarCotizacion();
+
+  if (cot.cliente_id) {
+    clienteSeleccionadoCot = { id: cot.cliente_id, nombre: cot.cliente_nombre };
+    document.getElementById("cot-cliente-chip-nombre").textContent = cot.cliente_nombre;
+    document.getElementById("cot-cliente-quitar").style.display = "inline-block";
+  }
+
+  document.getElementById("cot-notas").value = cot.notas || "";
+
+  // Aproxima la opción de "Válida por" según los días restantes hasta el vencimiento
+  const hoy = new Date();
+  const venc = new Date(cot.vencimiento);
+  const diasRestantes = Math.max(1, Math.round((venc - hoy) / (1000 * 60 * 60 * 24)));
+  const opciones = [7, 15, 30, 60];
+  const masCercana = opciones.reduce((a, b) => (Math.abs(b - diasRestantes) < Math.abs(a - diasRestantes) ? b : a));
+  document.getElementById("cot-dias-validez").value = String(masCercana);
+
+  for (const linea of cot.lineas) {
+    let aplicaImpuesto = true;
+    try {
+      const prod = await api.obtener_producto(linea.producto_id);
+      if (prod) aplicaImpuesto = !!prod.aplica_impuesto;
+    } catch (e) {
+      /* si el producto ya no existe, se asume que aplica impuesto */
+    }
+    carritoCot.push({
+      producto_id: linea.producto_id,
+      nombre: linea.descripcion,
+      precio_unit: linea.precio_unit,
+      cantidad: linea.cantidad,
+      aplica_impuesto: aplicaImpuesto,
+    });
+  }
+  pintarCarritoCot();
+
+  cotizacionEnEdicionId = id;
+  document.getElementById("cot-modo-edicion-numero").textContent = cot.numero;
+  document.getElementById("cot-modo-edicion").style.display = "block";
+  document.getElementById("btn-guardar-cotizacion").textContent = "Guardar cambios";
+
+  document.getElementById("view-cotizaciones").scrollIntoView({ behavior: "smooth" });
+}
+
+function confirmarAccion(mensaje, tituloBoton) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("modal-confirmar");
+    document.getElementById("modal-confirmar-mensaje").textContent = mensaje;
+    const btnAceptar = document.getElementById("btn-confirmar-aceptar");
+    const btnCancelar = document.getElementById("btn-confirmar-cancelar");
+    const btnCerrar = document.getElementById("modal-confirmar-cerrar");
+    btnAceptar.textContent = tituloBoton || "Eliminar";
+
+    modal.classList.add("active");
+
+    function limpiar() {
+      modal.classList.remove("active");
+      btnAceptar.removeEventListener("click", onAceptar);
+      btnCancelar.removeEventListener("click", onCancelar);
+      btnCerrar.removeEventListener("click", onCancelar);
+    }
+    function onAceptar() {
+      limpiar();
+      resolve(true);
+    }
+    function onCancelar() {
+      limpiar();
+      resolve(false);
+    }
+
+    btnAceptar.addEventListener("click", onAceptar);
+    btnCancelar.addEventListener("click", onCancelar);
+    btnCerrar.addEventListener("click", onCancelar);
+  });
+}
+
+async function eliminarCotizacion(id, numero) {
+  const api = apiCot();
+  if (!api) return;
+  const confirmado = await confirmarAccion(`¿Eliminar la cotización ${numero}? Esta acción no se puede deshacer.`);
+  if (!confirmado) return;
+
+  const resultado = await api.eliminar_cotizacion(id);
+  if (!resultado.ok) {
+    mostrarBannerCot(resultado.error || "No se pudo eliminar la cotización.", "error");
+    return;
+  }
+  if (cotizacionEnEdicionId === id) {
+    salirModoEdicionCot();
+    reiniciarCotizacion();
+  }
+  mostrarBannerCot(`Cotización ${numero} eliminada.`, "success");
+  cargarCotizacionesRecientes();
+}
+
+let rutaPdfActual = null;
+
+function inicialesEmpresa(nombre) {
+  const limpio = (nombre || "").trim();
+  if (!limpio) return "?";
+  const partes = limpio.split(/\s+/).slice(0, 2);
+  return partes.map((p) => p[0].toUpperCase()).join("");
+}
+
+function fechaLegibleCot(valor) {
+  if (!valor) return "—";
+  const texto = String(valor).slice(0, 10);
+  const partes = texto.split("-");
+  if (partes.length !== 3) return texto;
+  const [y, m, d] = partes;
+  const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const idx = parseInt(m, 10) - 1;
+  if (idx < 0 || idx > 11) return texto;
+  return `${d} ${meses[idx]} ${y}`;
+}
+
+function renderDocPreview(cot, info) {
+  const moneda = (info && info.moneda) || "RD$";
+  const fmt = (v) => `${moneda} ${Number(v || 0).toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const nombreEmpresa = (info && info.nombre_empresa) || "Mi Empresa";
+
+  const filas = (cot.lineas || []).map((l) => `
+    <tr>
+      <td>${escapeHtmlCot(l.descripcion)}</td>
+      <td>${fmt(l.precio_unit)}</td>
+      <td>${Number(l.cantidad)}</td>
+      <td>${fmt(l.total_linea)}</td>
+    </tr>
+  `).join("");
+
+  const notasHtml = cot.notas
+    ? `<div class="doc-notas"><b>Notas:</b> ${escapeHtmlCot(cot.notas)}</div>`
+    : "";
+
+  document.getElementById("pdf-cotizacion-preview").innerHTML = `
+    <div class="doc-header">
+      <div class="doc-logo">${escapeHtmlCot(inicialesEmpresa(nombreEmpresa))}</div>
+      <div class="doc-empresa">${escapeHtmlCot(nombreEmpresa)}</div>
+      <div class="doc-subtitulo">Sistema interno de facturación</div>
+      <div class="doc-tipo-numero">COTIZACIÓN &nbsp;·&nbsp; ${escapeHtmlCot(cot.numero)}</div>
+    </div>
+
+    <div class="doc-meta">
+      <div class="doc-meta-item"><span>Cliente</span><span>${escapeHtmlCot(cot.cliente_nombre || "Consumidor final")}</span></div>
+      <div class="doc-meta-item"><span>Estado</span><span>${badgeEstadoCot(cot.estado)}</span></div>
+      <div class="doc-meta-item"><span>Fecha</span><span>${fechaLegibleCot(cot.fecha)}</span></div>
+      <div class="doc-meta-item"><span>Válida hasta</span><span>${fechaLegibleCot(cot.vencimiento) === "—" ? "—" : fechaLegibleCot(cot.vencimiento)}</span></div>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr><th>Producto</th><th>Precio unit.</th><th>Cant.</th><th>Total línea</th></tr>
+      </thead>
+      <tbody>${filas}</tbody>
+    </table>
+
+    <div class="doc-totales">
+      <div class="doc-totales-row"><span>Subtotal</span><span>${fmt(cot.subtotal)}</span></div>
+      <div class="doc-totales-row"><span>Impuesto</span><span>${fmt(cot.impuesto)}</span></div>
+      <div class="doc-totales-row total"><span>Total</span><span>${fmt(cot.total)}</span></div>
+    </div>
+
+    ${notasHtml}
+
+    <div class="doc-footer">Generado automáticamente · ${nombreEmpresa}</div>
+  `;
+}
+
+function mostrarBannerModalPdf(mensaje, tipo) {
+  const banner = document.getElementById("modal-pdf-banner");
+  banner.textContent = mensaje;
+  banner.className = "banner active banner-" + tipo;
+}
+
+function limpiarBannerModalPdf() {
+  const banner = document.getElementById("modal-pdf-banner");
+  banner.className = "banner";
+  banner.textContent = "";
+}
+
+async function verPdfCotizacion(id) {
+  const api = apiCot();
+  if (!api) return;
+
+  const [cot, info, resultadoPdf] = await Promise.all([
+    api.obtener_cotizacion(id),
+    api.obtener_info_empresa(),
+    api.generar_pdf_cotizacion(id),
+  ]);
+
+  if (!cot) {
+    mostrarBannerCot("La cotización ya no existe.", "error");
+    return;
+  }
+  if (!resultadoPdf.ok) {
+    mostrarBannerCot(resultadoPdf.error || "No se pudo generar el PDF.", "error");
+    return;
+  }
+
+  renderDocPreview(cot, info);
+
+  rutaPdfActual = resultadoPdf.ruta;
+  limpiarBannerModalPdf();
+  document.getElementById("modal-pdf-titulo").textContent = `Cotización ${cot.numero}`;
+  document.getElementById("modal-pdf-cotizacion").classList.add("active");
+}
+
+function cerrarModalPdf() {
+  document.getElementById("modal-pdf-cotizacion").classList.remove("active");
+  document.getElementById("pdf-cotizacion-preview").innerHTML = "";
+  limpiarBannerModalPdf();
+  rutaPdfActual = null;
+}
+
+document.getElementById("modal-pdf-cerrar").addEventListener("click", cerrarModalPdf);
+document.getElementById("btn-pdf-cerrar-footer").addEventListener("click", cerrarModalPdf);
+
+document.getElementById("btn-pdf-imprimir").addEventListener("click", async () => {
+  const api = apiCot();
+  if (!api || !rutaPdfActual) return;
+
+  const resultado = await api.imprimir_pdf(rutaPdfActual);
+  if (!resultado.ok) {
+    mostrarBannerModalPdf(resultado.error || "No se pudo abrir el PDF.", "error");
+  }
+});
+
+document.getElementById("btn-pdf-descargar").addEventListener("click", async () => {
+  const api = apiCot();
+  if (!api || !rutaPdfActual) return;
+  const resultado = await api.guardar_pdf_como(rutaPdfActual);
+  if (resultado.cancelado) return;
+  if (!resultado.ok) {
+    mostrarBannerModalPdf(resultado.error || "No se pudo guardar el PDF.", "error");
+    return;
+  }
+  mostrarBannerModalPdf("PDF guardado correctamente.", "success");
+});
 
 /* ------------------------- Lista de cotizaciones recientes ------------------------- */
 
@@ -367,6 +638,17 @@ async function cargarCotizacionesRecientes() {
       `;
     }
 
+    acciones += `
+      <button class="row-action" data-accion="pdf" data-id="${c.id}" title="Ver PDF">${ICONO_PDF}</button>
+    `;
+
+    if (c.estado !== "Convertida") {
+      acciones += `
+        <button class="row-action" data-accion="editar" data-id="${c.id}" title="Editar">${ICONO_EDITAR}</button>
+        <button class="row-action danger" data-accion="eliminar" data-id="${c.id}" data-numero="${escapeHtmlCot(c.numero)}" title="Eliminar">${ICONO_ELIMINAR}</button>
+      `;
+    }
+
     tr.innerHTML = `
       <td class="cell-mono">${c.numero}</td>
       <td>${escapeHtmlCot(c.cliente_nombre)}</td>
@@ -395,6 +677,12 @@ document.getElementById("cotizaciones-tbody").addEventListener("click", async (e
     cargarCotizacionesRecientes();
   } else if (accion === "convertir") {
     abrirModalConvertir(id, btn.dataset.numero);
+  } else if (accion === "pdf") {
+    verPdfCotizacion(id);
+  } else if (accion === "editar") {
+    editarCotizacion(id);
+  } else if (accion === "eliminar") {
+    eliminarCotizacion(id, btn.dataset.numero);
   }
 });
 
