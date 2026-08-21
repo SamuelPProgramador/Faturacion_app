@@ -249,11 +249,123 @@
             <h1 class="view-title">Cotizaciones</h1>
             <p class="view-subtitle">Crear y dar seguimiento a cotizaciones</p>
           </div>
+          <span class="factura-numero-preview" id="cotizacion-numero-preview">COT-000001</span>
         </div>
-        <div class="card placeholder-card">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          <h3>Módulo de cotizaciones</h3>
-          <p>Aquí vamos a listar y crear cotizaciones, y convertirlas en factura con un clic.</p>
+
+        <div class="banner" id="cot-banner"></div>
+
+        <div class="pos-grid">
+          <!-- Columna izquierda: cliente + productos + carrito -->
+          <div class="pos-left">
+
+            <div class="card pos-block">
+              <label class="pos-block-label">Cliente</label>
+              <div class="autocomplete-wrapper" id="cot-cliente-wrapper">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="cot-cliente-buscar" placeholder="Buscar cliente por nombre, código o teléfono..." autocomplete="off" />
+                </div>
+                <div class="autocomplete-results" id="cot-cliente-resultados"></div>
+              </div>
+              <div class="cliente-chip">
+                <span>👤</span>
+                <span id="cot-cliente-chip-nombre">Consumidor final</span>
+                <button type="button" id="cot-cliente-quitar" title="Quitar cliente" style="display:none;">✕</button>
+              </div>
+            </div>
+
+            <div class="card pos-block">
+              <label class="pos-block-label">Agregar productos</label>
+              <div class="autocomplete-wrapper" id="cot-producto-wrapper">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="cot-producto-buscar" placeholder="Buscar producto por nombre o código..." autocomplete="off" />
+                </div>
+                <div class="autocomplete-results" id="cot-producto-resultados"></div>
+              </div>
+            </div>
+
+            <div class="card table-card">
+              <table class="data-table" id="tabla-carrito-cot">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th style="width:110px;">Precio</th>
+                    <th style="width:90px;">Cant.</th>
+                    <th style="width:120px;">Total línea</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="carrito-cot-tbody"></tbody>
+              </table>
+              <div class="table-empty" id="carrito-cot-empty">
+                <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <h3>Todavía no has agregado productos</h3>
+                <p>Busca un producto arriba y haz clic en él para agregarlo a la cotización.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha: resumen y guardar -->
+          <div class="pos-right">
+            <div class="card summary-card">
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="cot-resumen-subtotal">RD$ 0.00</span>
+              </div>
+              <div class="summary-row">
+                <span>Impuesto (<span id="cot-resumen-impuesto-pct">0</span>%)</span>
+                <span id="cot-resumen-impuesto">RD$ 0.00</span>
+              </div>
+              <div class="summary-row summary-total">
+                <span>Total</span>
+                <span id="cot-resumen-total">RD$ 0.00</span>
+              </div>
+
+              <div class="form-field" style="margin-top:16px;">
+                <label>Válida por</label>
+                <select id="cot-dias-validez">
+                  <option value="7">7 días</option>
+                  <option value="15" selected>15 días</option>
+                  <option value="30">30 días</option>
+                  <option value="60">60 días</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label>Notas (opcional)</label>
+                <textarea id="cot-notas" rows="2" placeholder="Referencia, comentario..."></textarea>
+              </div>
+
+              <p class="form-error" id="cot-error"></p>
+
+              <button type="button" class="btn btn-primary btn-cobrar" id="btn-guardar-cotizacion">
+                Guardar cotización
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card table-card" style="margin-top:22px;">
+          <div class="table-card-header">Cotizaciones recientes</div>
+          <table class="data-table" id="tabla-cotizaciones">
+            <thead>
+              <tr>
+                <th>No. Cotización</th>
+                <th>Cliente</th>
+                <th>Válida hasta</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cotizaciones-tbody"></tbody>
+          </table>
+          <div class="table-empty" id="cotizaciones-empty" style="display:none;">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            <h3>Todavía no hay cotizaciones registradas</h3>
+            <p>Arma una arriba con el botón "Guardar cotización".</p>
+          </div>
         </div>
       </section>
 
@@ -608,9 +720,44 @@
   </div>
 </div>
 
+<!-- =========================== MODAL: CONVERTIR COTIZACION EN FACTURA =========================== -->
+<div class="modal-overlay" id="modal-convertir-cot">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h2>Convertir en factura</h2>
+      <button class="modal-close" id="modal-convertir-cot-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="convertir-cot-id" />
+      <p style="font-size:13.5px; color:var(--text-secondary); margin:0 0 14px;">
+        Se creará una factura con los mismos productos y cliente de la cotización <strong id="convertir-cot-numero"></strong>.
+      </p>
+      <div class="form-field">
+        <label>Método de pago</label>
+        <select id="convertir-cot-metodo-pago">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Crédito">Crédito (Cuenta por cobrar)</option>
+        </select>
+      </div>
+      <p class="form-error" id="convertir-cot-error"></p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-convertir-cot">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-confirmar-convertir-cot">Convertir en factura</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script src="js/productos.js"></script>
 <script src="js/clientes.js"></script>
 <script src="js/facturar.js"></script>
+<script src="js/cotizaciones.js"></script>
 </body>
 </html>
