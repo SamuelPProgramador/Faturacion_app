@@ -1,8 +1,8 @@
 Productos (todo lo demás lo necesita) listo
-Clientes 
-Facturar (usa productos + clientes)
+Clientes listo
+Facturar (usa productos + clientes) listo
 Entradas (actualiza inventario)
-Cotizaciones
+Cotizaciones listo
 CxC (se alimenta de facturas a crédito)
 Configuración
 Conectar el Resumen de ventas al final, cuando ya haya datos reales
