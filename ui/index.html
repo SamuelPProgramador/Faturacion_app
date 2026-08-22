@@ -235,6 +235,7 @@
                 <th>Método</th>
                 <th>Estado</th>
                 <th>Total</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="recientes-tbody"></tbody>
@@ -432,112 +433,10 @@
             <p class="view-subtitle">Entradas de inventario / compras</p>
           </div>
         </div>
-
-        <div class="banner" id="entrada-banner"></div>
-
-        <div class="pos-grid">
-          <!-- Columna izquierda: formulario de entrada -->
-          <div class="pos-left">
-
-            <div class="card pos-block">
-              <label class="pos-block-label">Producto</label>
-              <div class="autocomplete-wrapper" id="entrada-producto-wrapper">
-                <div class="search-box">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <input type="text" id="entrada-producto-buscar" placeholder="Buscar producto por nombre o código..." autocomplete="off" />
-                </div>
-                <div class="autocomplete-results" id="entrada-producto-resultados"></div>
-              </div>
-              <div class="cliente-chip" id="entrada-producto-chip" style="display:none;">
-                <span>📦</span>
-                <span id="entrada-producto-chip-nombre">—</span>
-                <span class="cell-sub" id="entrada-producto-chip-existencia" style="margin-left:auto;"></span>
-                <button type="button" id="entrada-producto-quitar" title="Quitar">✕</button>
-              </div>
-            </div>
-
-            <div class="card pos-block">
-              <label class="pos-block-label">Detalle de la entrada</label>
-
-              <div class="form-grid">
-                <div class="form-field">
-                  <label>Cantidad que entra *</label>
-                  <input type="number" id="entrada-cantidad" min="0.01" step="1" placeholder="Ej. 50" />
-                </div>
-
-                <div class="form-field">
-                  <label>Costo unitario</label>
-                  <div class="input-prefixed">
-                    <span class="prefix">RD$</span>
-                    <input type="number" id="entrada-costo" min="0" step="0.01" placeholder="Se usa el costo actual si lo dejas vacío" />
-                  </div>
-                </div>
-
-                <div class="form-field span-2">
-                  <label>Proveedor (opcional)</label>
-                  <input type="text" id="entrada-proveedor" placeholder="Ej. Distribuidora ABC" />
-                </div>
-
-                <div class="form-field span-2">
-                  <label>Notas (opcional)</label>
-                  <textarea id="entrada-notas" rows="2" placeholder="Referencia, número de factura del proveedor, etc."></textarea>
-                </div>
-
-                <div class="form-field span-2">
-                  <label class="toggle-inline" style="font-size:13px; color:var(--text-primary); font-weight:500;">
-                    <input type="checkbox" id="entrada-actualizar-costo" checked />
-                    Actualizar el costo del producto con este valor
-                  </label>
-                </div>
-              </div>
-
-              <p class="form-error" id="entrada-error"></p>
-
-              <button type="button" class="btn btn-primary btn-cobrar" id="btn-guardar-entrada">
-                Registrar entrada
-              </button>
-            </div>
-          </div>
-
-          <!-- Columna derecha: existencia actual del producto elegido -->
-          <div class="pos-right">
-            <div class="card summary-card">
-              <div class="pos-block-label" style="margin-bottom:12px;">Existencia</div>
-              <div class="summary-row">
-                <span>Existencia actual</span>
-                <span id="entrada-resumen-existencia">—</span>
-              </div>
-              <div class="summary-row">
-                <span>Entra</span>
-                <span id="entrada-resumen-entra">—</span>
-              </div>
-              <div class="summary-row summary-total">
-                <span>Nueva existencia</span>
-                <span id="entrada-resumen-nueva">—</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card table-card" style="margin-top:22px;">
-          <div class="table-card-header">Entradas recientes</div>
-          <table class="data-table" id="tabla-entradas">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Costo unit.</th>
-                <th>Proveedor</th>
-              </tr>
-            </thead>
-            <tbody id="entradas-tbody"></tbody>
-          </table>
-          <div class="table-empty" id="entradas-empty" style="display:none;">
-            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
-            <h3>Todavía no hay entradas registradas</h3>
-            <p>Busca un producto arriba y registra la primera entrada de inventario.</p>
-          </div>
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+          <h3>Módulo de entradas</h3>
+          <p>Aquí vamos a registrar entradas de producto para que la existencia se actualice sola.</p>
         </div>
       </section>
 
@@ -907,11 +806,36 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-pdf-factura">
+  <div class="modal modal-pdf">
+    <div class="modal-header">
+      <h2 id="modal-pdf-factura-titulo">Factura</h2>
+      <button class="modal-close" id="modal-pdf-factura-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-pdf-factura-banner" class="banner"></div>
+      <div id="pdf-factura-preview" class="doc-preview"></div>
+    </div>
+    <div class="modal-footer modal-footer-pdf">
+      <button type="button" class="btn btn-ghost" id="btn-pdf-factura-cerrar-footer">Cerrar</button>
+      <button type="button" class="btn btn-ghost" id="btn-pdf-factura-imprimir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+      <button type="button" class="btn btn-primary" id="btn-pdf-factura-descargar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script src="js/productos.js"></script>
 <script src="js/clientes.js"></script>
 <script src="js/facturar.js"></script>
-<script src="js/entradas.js"></script>
 <script src="js/cotizaciones.js"></script>
 </body>
 </html>

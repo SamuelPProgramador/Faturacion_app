@@ -642,10 +642,12 @@ async function cargarCotizacionesRecientes() {
       <button class="row-action" data-accion="pdf" data-id="${c.id}" title="Ver PDF">${ICONO_PDF}</button>
     `;
 
-    acciones += `
-      <button class="row-action" data-accion="editar" data-id="${c.id}" title="Editar">${ICONO_EDITAR}</button>
-      <button class="row-action danger" data-accion="eliminar" data-id="${c.id}" data-numero="${escapeHtmlCot(c.numero)}" title="Eliminar">${ICONO_ELIMINAR}</button>
-    `;
+    if (c.estado !== "Convertida") {
+      acciones += `
+        <button class="row-action" data-accion="editar" data-id="${c.id}" title="Editar">${ICONO_EDITAR}</button>
+        <button class="row-action danger" data-accion="eliminar" data-id="${c.id}" data-numero="${escapeHtmlCot(c.numero)}" title="Eliminar">${ICONO_ELIMINAR}</button>
+      `;
+    }
 
     tr.innerHTML = `
       <td class="cell-mono">${c.numero}</td>
