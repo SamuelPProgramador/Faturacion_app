@@ -1,11 +1,12 @@
 /* =====================================================================
    entradas.js
-   Modulo de Entradas: busca un producto, muestra su existencia actual,
-   y registra una entrada de inventario (aumenta existencia y opcionalmente
-   actualiza el costo del producto).
+   Modulo de Entradas: busca un producto, opcionalmente elige un proveedor
+   de la lista, y registra una entrada de inventario (aumenta existencia,
+   opcionalmente actualiza costo, y si es a credito genera CxP).
    ===================================================================== */
 
-let entradaProductoSeleccionado = null;
+let entradaProductoSeleccionado = null; // {id, nombre, existencia, costo}
+let entradaProveedorSeleccionado = null; // {id, nombre}
 
 function apiEntrada() {
   return window.pywebview ? window.pywebview.api : null;
@@ -84,6 +85,65 @@ document.getElementById("entrada-producto-quitar").addEventListener("click", () 
   actualizarResumenEntrada();
 });
 
+const inputEntradaProv = document.getElementById("entrada-prov-buscar");
+const resultadosEntradaProv = document.getElementById("entrada-prov-resultados");
+
+let entradaProvDebounce = null;
+inputEntradaProv.addEventListener("input", () => {
+  clearTimeout(entradaProvDebounce);
+  const texto = inputEntradaProv.value.trim();
+  if (!texto) {
+    resultadosEntradaProv.classList.remove("active");
+    return;
+  }
+  entradaProvDebounce = setTimeout(async () => {
+    const api = apiEntrada();
+    if (!api) return;
+    const proveedores = await api.listar_proveedores(false, texto);
+    pintarResultadosEntradaProv(proveedores);
+  }, 220);
+});
+
+function pintarResultadosEntradaProv(proveedores) {
+  resultadosEntradaProv.innerHTML = "";
+  if (!proveedores || proveedores.length === 0) {
+    resultadosEntradaProv.innerHTML = `<div class="autocomplete-empty">Sin resultados. Puedes crearlo en el módulo de Proveedores.</div>`;
+    resultadosEntradaProv.classList.add("active");
+    return;
+  }
+  proveedores.forEach((p) => {
+    const item = document.createElement("div");
+    item.className = "autocomplete-item";
+    item.innerHTML = `
+      <span class="ac-main">${p.nombre}</span>
+      <span class="ac-sub">${p.telefono || p.codigo || ""}</span>
+    `;
+    item.addEventListener("click", () => seleccionarEntradaProv(p));
+    resultadosEntradaProv.appendChild(item);
+  });
+  resultadosEntradaProv.classList.add("active");
+}
+
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("entrada-prov-wrapper").contains(e.target)) {
+    resultadosEntradaProv.classList.remove("active");
+  }
+});
+
+function seleccionarEntradaProv(proveedor) {
+  entradaProveedorSeleccionado = { id: proveedor.id, nombre: proveedor.nombre };
+  document.getElementById("entrada-prov-chip").style.display = "flex";
+  document.getElementById("entrada-prov-chip-nombre").textContent = proveedor.nombre;
+  inputEntradaProv.value = "";
+  resultadosEntradaProv.classList.remove("active");
+}
+
+document.getElementById("entrada-prov-quitar").addEventListener("click", () => {
+  entradaProveedorSeleccionado = null;
+  document.getElementById("entrada-prov-chip").style.display = "none";
+  document.getElementById("entrada-metodo-pago").value = "Contado";
+});
+
 function actualizarResumenEntrada() {
   const cantidad = Number(document.getElementById("entrada-cantidad").value) || 0;
 
@@ -114,6 +174,14 @@ document.getElementById("btn-guardar-entrada").addEventListener("click", async (
     return;
   }
 
+  const metodoPago = document.getElementById("entrada-metodo-pago").value;
+
+  if (metodoPago === "Crédito" && !entradaProveedorSeleccionado) {
+    errorBox.textContent = "Para una compra a crédito debes elegir un proveedor.";
+    errorBox.classList.add("active");
+    return;
+  }
+
   const cantidad = Number(document.getElementById("entrada-cantidad").value) || 0;
   const costoInput = document.getElementById("entrada-costo").value;
 
@@ -121,7 +189,8 @@ document.getElementById("btn-guardar-entrada").addEventListener("click", async (
     producto_id: entradaProductoSeleccionado.id,
     cantidad: cantidad,
     costo_unit: costoInput === "" ? null : Number(costoInput),
-    proveedor: document.getElementById("entrada-proveedor").value,
+    proveedor_id: entradaProveedorSeleccionado ? entradaProveedorSeleccionado.id : null,
+    metodo_pago: metodoPago,
     notas: document.getElementById("entrada-notas").value,
     actualizar_costo: document.getElementById("entrada-actualizar-costo").checked,
   };
@@ -158,11 +227,13 @@ function mostrarBannerEntrada(mensaje, tipo) {
 
 function reiniciarEntrada() {
   entradaProductoSeleccionado = null;
+  entradaProveedorSeleccionado = null;
   document.getElementById("entrada-producto-chip").style.display = "none";
+  document.getElementById("entrada-prov-chip").style.display = "none";
   document.getElementById("entrada-cantidad").value = "";
   document.getElementById("entrada-costo").value = "";
   document.getElementById("entrada-costo").placeholder = "Se usa el costo actual si lo dejas vacío";
-  document.getElementById("entrada-proveedor").value = "";
+  document.getElementById("entrada-metodo-pago").value = "Contado";
   document.getElementById("entrada-notas").value = "";
   document.getElementById("entrada-actualizar-costo").checked = true;
   actualizarResumenEntrada();
@@ -189,13 +260,17 @@ async function cargarEntradasRecientes() {
 
   entradas.forEach((e) => {
     const fecha = (e.fecha || "").split(" ")[0];
+    const badgeMetodo = e.metodo_pago === "Crédito"
+      ? `<span class="badge badge-warning">Crédito</span>`
+      : `<span class="badge badge-success">Contado</span>`;
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="cell-mono">${fecha}</td>
       <td class="cell-strong">${e.producto_nombre}</td>
       <td class="cell-mono">+${e.cantidad}</td>
       <td class="cell-mono">${formatoMonedaEntrada(e.costo_unit)}</td>
-      <td>${e.proveedor || "—"}</td>
+      <td>${e.proveedor_nombre || "—"}</td>
+      <td>${badgeMetodo}</td>
     `;
     tbody.appendChild(tr);
   });

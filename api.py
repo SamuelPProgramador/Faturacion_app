@@ -16,9 +16,11 @@ from db import productos as productos_db
 from db import clientes as clientes_db
 from db import facturas as facturas_db
 from db import entradas as entradas_db
-from db import cotizaciones as cotizaciones_db
 from db import pdf_cotizacion
-
+from db import entradas as entradas_db
+from db import proveedores as proveedores_db
+from db import gastos as gastos_db
+from db import cotizaciones as cotizaciones_db
 
 class Api:
     def __init__(self):
@@ -105,6 +107,62 @@ class Api:
 
     def listar_entradas_por_producto(self, producto_id, limite=30):
         return entradas_db.listar_por_producto(producto_id, limite)
+
+
+    # -----------------------------------------------------------
+    # Proveedores
+    # -----------------------------------------------------------
+    def listar_proveedores(self, incluir_inactivos=False, busqueda=None):
+        return proveedores_db.listar(incluir_inactivos=incluir_inactivos, busqueda=busqueda)
+
+    def obtener_proveedor(self, proveedor_id):
+        return proveedores_db.obtener(proveedor_id)
+
+    def generar_codigo_proveedor(self):
+        return proveedores_db.generar_codigo()
+
+    def crear_proveedor(self, datos):
+        return proveedores_db.crear(datos)
+
+    def actualizar_proveedor(self, proveedor_id, datos):
+        return proveedores_db.actualizar(proveedor_id, datos)
+
+    def cambiar_estado_proveedor(self, proveedor_id, activo):
+        return proveedores_db.cambiar_estado(proveedor_id, activo)
+
+    def obtener_resumen_proveedor(self, proveedor_id):
+        return proveedores_db.obtener_resumen(proveedor_id)
+
+    def listar_compras_proveedor(self, proveedor_id, limite=30):
+        return proveedores_db.listar_compras(proveedor_id, limite)
+
+    def listar_deudas_proveedor(self, proveedor_id):
+        return proveedores_db.listar_deudas(proveedor_id)
+
+    def registrar_pago_cxp(self, cxp_id, monto, metodo_pago="Efectivo"):
+        return proveedores_db.registrar_pago_cxp(cxp_id, monto, metodo_pago)
+
+        # -----------------------------------------------------------
+    # Gastos
+    # -----------------------------------------------------------
+    def listar_gastos(self, fecha_desde=None, fecha_hasta=None, categoria=None, busqueda=None, limite=200):
+        return gastos_db.listar(fecha_desde, fecha_hasta, categoria, busqueda, limite)
+
+    def obtener_gasto(self, gasto_id):
+        return gastos_db.obtener(gasto_id)
+
+    def crear_gasto(self, datos):
+        return gastos_db.crear(datos)
+
+    def actualizar_gasto(self, gasto_id, datos):
+        return gastos_db.actualizar(gasto_id, datos)
+
+    def eliminar_gasto(self, gasto_id):
+        return gastos_db.eliminar(gasto_id)
+
+    def resumen_gastos_por_categoria(self, fecha_desde=None, fecha_hasta=None):
+        return gastos_db.resumen_por_categoria(fecha_desde, fecha_hasta)
+
 
     # -----------------------------------------------------------
     # Cotizaciones

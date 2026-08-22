@@ -186,6 +186,8 @@ def init_db():
         )
     """)
 
+
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS cxc_pagos (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -194,6 +196,73 @@ def init_db():
             fecha           TEXT DEFAULT CURRENT_TIMESTAMP,
             metodo_pago     TEXT,
             FOREIGN KEY (cxc_id) REFERENCES cxc (id) ON DELETE CASCADE
+        )
+    """)
+
+    # ---------------------------------------------------------------
+    # PROVEEDORES
+    # ---------------------------------------------------------------
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS proveedores (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            codigo              TEXT UNIQUE,
+            nombre              TEXT NOT NULL,
+            telefono            TEXT,
+            correo              TEXT,
+            direccion           TEXT,
+            productos_suministra TEXT,
+            dias_credito        INTEGER DEFAULT 0,
+            notas               TEXT,
+            activo              INTEGER DEFAULT 1,
+            creado_en           TEXT DEFAULT CURRENT_TIMESTAMP,
+            actualizado_en      TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # ---------------------------------------------------------------
+    # CUENTAS POR PAGAR (CxP) - lo que el negocio le debe a proveedores
+    # ---------------------------------------------------------------
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS cxp (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            proveedor_id    INTEGER NOT NULL,
+            entrada_id      INTEGER,
+            monto_original  REAL NOT NULL,
+            saldo_pendiente REAL NOT NULL,
+            fecha           TEXT DEFAULT CURRENT_TIMESTAMP,
+            fecha_vencim    TEXT,
+            estado          TEXT DEFAULT 'Pendiente',
+            FOREIGN KEY (proveedor_id) REFERENCES proveedores (id),
+            FOREIGN KEY (entrada_id) REFERENCES entradas (id)
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS cxp_pagos (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            cxp_id          INTEGER NOT NULL,
+            monto           REAL NOT NULL,
+            fecha           TEXT DEFAULT CURRENT_TIMESTAMP,
+            metodo_pago     TEXT,
+            FOREIGN KEY (cxp_id) REFERENCES cxp (id) ON DELETE CASCADE
+        )
+    """)
+
+    # ---------------------------------------------------------------
+    # GASTOS
+    # ---------------------------------------------------------------
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS gastos (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            categoria       TEXT NOT NULL,
+            concepto        TEXT,
+            monto           REAL NOT NULL,
+            metodo_pago     TEXT DEFAULT 'Efectivo',
+            proveedor_id    INTEGER,
+            fecha           TEXT DEFAULT CURRENT_TIMESTAMP,
+            notas           TEXT,
+            creado_en       TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (proveedor_id) REFERENCES proveedores (id)
         )
     """)
 
@@ -246,6 +315,11 @@ def _migrar_columnas_faltantes(cur):
         "cotizaciones": {
             "factura_id": "INTEGER",
         },
+        "entradas": {
+            "proveedor_id": "INTEGER",
+            "metodo_pago": "TEXT DEFAULT 'Contado'",
+            "estado": "TEXT DEFAULT 'Pagada'",
+        },
     }
     for tabla, columnas in columnas_esperadas.items():
         existentes = {row["name"] for row in cur.execute(f"PRAGMA table_info({tabla})")}
@@ -272,3 +346,5 @@ def set_config(clave, valor):
     )
     conn.commit()
     conn.close()
+
+
