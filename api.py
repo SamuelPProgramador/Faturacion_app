@@ -5,6 +5,11 @@ Cada metodo publico de aqui queda disponible en el JavaScript como
 pywebview.api.nombre_del_metodo(...)
 """
 
+import os
+import sys
+import subprocess
+import shutil
+import base64
 import webview
 from db import database
 from db import productos as productos_db
@@ -12,6 +17,7 @@ from db import clientes as clientes_db
 from db import facturas as facturas_db
 from db import entradas as entradas_db
 from db import cotizaciones as cotizaciones_db
+from db import pdf_cotizacion
 
 
 class Api:
@@ -108,6 +114,70 @@ class Api:
 
     def crear_cotizacion(self, datos):
         return cotizaciones_db.crear(datos)
+
+    def actualizar_cotizacion(self, cotizacion_id, datos):
+        return cotizaciones_db.actualizar(cotizacion_id, datos)
+
+    def eliminar_cotizacion(self, cotizacion_id):
+        return cotizaciones_db.eliminar(cotizacion_id)
+
+    def generar_pdf_cotizacion(self, cotizacion_id):
+        resultado = pdf_cotizacion.generar(cotizacion_id)
+        if resultado.get("ok"):
+            try:
+                with open(resultado["ruta"], "rb") as f:
+                    resultado["base64"] = base64.b64encode(f.read()).decode("ascii")
+            except Exception as e:
+                resultado = {"ok": False, "error": f"El PDF se generó pero no se pudo leer: {e}"}
+        return resultado
+
+    def abrir_pdf_externo(self, ruta):
+        try:
+            if sys.platform.startswith("win"):
+                os.startfile(ruta)
+            elif sys.platform == "darwin":
+                subprocess.Popen(["open", ruta])
+            else:
+                subprocess.Popen(["xdg-open", ruta])
+            return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def imprimir_pdf(self, ruta):
+        """
+        Abre el PDF con el visor predeterminado. No dispara ningun
+        dialogo de impresion automaticamente: el usuario decide si
+        imprime desde ahi (Ctrl+P) o no.
+        """
+        try:
+            if not ruta or not os.path.exists(ruta):
+                return {"ok": False, "error": "El archivo PDF ya no existe."}
+
+            if sys.platform.startswith("win"):
+                os.startfile(ruta)
+            elif sys.platform == "darwin":
+                subprocess.Popen(["open", ruta])
+            else:
+                subprocess.Popen(["xdg-open", ruta])
+            return {"ok": True, "modo": "visor"}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def guardar_pdf_como(self, ruta_origen):
+        if not self._window:
+            return {"ok": False, "error": "No se pudo abrir el diálogo de guardado."}
+        try:
+            nombre_sugerido = os.path.basename(ruta_origen)
+            destino = self._window.create_file_dialog(
+                webview.SAVE_DIALOG, save_filename=nombre_sugerido
+            )
+            if not destino:
+                return {"ok": False, "cancelado": True}
+            ruta_destino = destino[0] if isinstance(destino, (list, tuple)) else destino
+            shutil.copyfile(ruta_origen, ruta_destino)
+            return {"ok": True, "ruta": ruta_destino}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
 
     def listar_cotizaciones_recientes(self, limite=20):
         return cotizaciones_db.listar_recientes(limite)

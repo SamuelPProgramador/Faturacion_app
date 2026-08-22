@@ -339,6 +339,11 @@
 
               <p class="form-error" id="cot-error"></p>
 
+              <div class="banner banner-warning" id="cot-modo-edicion" style="display:none;">
+                Editando <strong id="cot-modo-edicion-numero"></strong> —
+                <a href="#" id="cot-cancelar-edicion">cancelar edición</a>
+              </div>
+
               <button type="button" class="btn btn-primary btn-cobrar" id="btn-guardar-cotizacion">
                 Guardar cotización
               </button>
@@ -852,6 +857,52 @@
     <div class="modal-footer">
       <button type="button" class="btn btn-ghost" id="btn-cancelar-convertir-cot">Cancelar</button>
       <button type="button" class="btn btn-primary" id="btn-confirmar-convertir-cot">Convertir en factura</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================== MODAL: CONFIRMAR ACCION =========================== -->
+<div class="modal-overlay" id="modal-confirmar">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h2 id="modal-confirmar-titulo">Confirmar</h2>
+      <button class="modal-close" id="modal-confirmar-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="modal-confirmar-mensaje" style="font-size:14px; color:var(--text-secondary); margin:0;"></p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-confirmar-cancelar">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="btn-confirmar-aceptar">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================== MODAL: VISTA PREVIA DE PDF =========================== -->
+<div class="modal-overlay" id="modal-pdf-cotizacion">
+  <div class="modal modal-pdf">
+    <div class="modal-header">
+      <h2 id="modal-pdf-titulo">Cotización</h2>
+      <button class="modal-close" id="modal-pdf-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-pdf-banner" class="banner"></div>
+      <div id="pdf-cotizacion-preview" class="doc-preview"></div>
+    </div>
+    <div class="modal-footer modal-footer-pdf">
+      <button type="button" class="btn btn-ghost" id="btn-pdf-cerrar-footer">Cerrar</button>
+      <button type="button" class="btn btn-ghost" id="btn-pdf-imprimir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+      <button type="button" class="btn btn-primary" id="btn-pdf-descargar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar PDF
+      </button>
     </div>
   </div>
 </div>
