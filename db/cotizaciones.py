@@ -123,6 +123,126 @@ def crear(datos):
         conn.close()
 
 
+def actualizar(cotizacion_id, datos):
+    """
+    Reemplaza cliente, vencimiento, notas y lineas de una cotizacion existente.
+    Solo se puede editar si todavia NO fue convertida en factura.
+    """
+    lineas = datos.get("lineas") or []
+    if not lineas:
+        return {"ok": False, "error": "Agrega al menos un producto a la cotización."}
+
+    conn = get_connection()
+    try:
+        actual = conn.execute(
+            "SELECT estado FROM cotizaciones WHERE id = ?", (cotizacion_id,)
+        ).fetchone()
+        if not actual:
+            return {"ok": False, "error": "La cotización ya no existe."}
+        if actual["estado"] == "Convertida":
+            return {"ok": False, "error": "Esta cotización ya fue convertida en factura y no se puede editar."}
+
+        impuesto_pct = float(get_config("impuesto_pct", "0") or 0)
+
+        subtotal = 0.0
+        impuesto_total = 0.0
+        detalle_final = []
+
+        for linea in lineas:
+            prod = conn.execute(
+                "SELECT * FROM productos WHERE id = ?", (linea.get("producto_id"),)
+            ).fetchone()
+            if not prod:
+                return {"ok": False, "error": "Uno de los productos ya no existe. Vuelve a buscarlo."}
+
+            cantidad = float(linea.get("cantidad") or 0)
+            if cantidad <= 0:
+                return {"ok": False, "error": f"La cantidad de '{prod['nombre']}' debe ser mayor a cero."}
+
+            precio_unit = linea.get("precio_unit")
+            precio_unit = float(precio_unit) if precio_unit not in (None, "") else float(prod["precio_venta"])
+
+            total_linea = round(precio_unit * cantidad, 2)
+            subtotal += total_linea
+            if prod["aplica_impuesto"]:
+                impuesto_total += round(total_linea * impuesto_pct / 100, 2)
+
+            detalle_final.append({
+                "producto_id": prod["id"],
+                "descripcion": prod["nombre"],
+                "cantidad": cantidad,
+                "precio_unit": precio_unit,
+                "total_linea": total_linea,
+            })
+
+        subtotal = round(subtotal, 2)
+        impuesto_total = round(impuesto_total, 2)
+        total = round(subtotal + impuesto_total, 2)
+
+        dias_validez = int(datos.get("dias_validez") or 15)
+        vencimiento = (datetime.now() + timedelta(days=dias_validez)).strftime("%Y-%m-%d")
+
+        conn.execute(
+            """
+            UPDATE cotizaciones
+            SET cliente_id = ?, vencimiento = ?, subtotal = ?, impuesto = ?, total = ?, notas = ?
+            WHERE id = ?
+            """,
+            (
+                datos.get("cliente_id"),
+                vencimiento,
+                subtotal,
+                impuesto_total,
+                total,
+                (datos.get("notas") or "").strip(),
+                cotizacion_id,
+            ),
+        )
+
+        conn.execute("DELETE FROM cotizacion_detalle WHERE cotizacion_id = ?", (cotizacion_id,))
+        for d in detalle_final:
+            conn.execute(
+                """
+                INSERT INTO cotizacion_detalle
+                    (cotizacion_id, producto_id, descripcion, cantidad, precio_unit, total_linea)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (cotizacion_id, d["producto_id"], d["descripcion"], d["cantidad"], d["precio_unit"], d["total_linea"]),
+            )
+
+        conn.commit()
+        return {"ok": True, "id": cotizacion_id, "total": total}
+
+    except Exception as e:
+        conn.rollback()
+        return {"ok": False, "error": str(e)}
+    finally:
+        conn.close()
+
+
+def eliminar(cotizacion_id):
+    """Borra una cotizacion y su detalle. No se puede borrar si ya fue convertida en factura."""
+    conn = get_connection()
+    try:
+        actual = conn.execute(
+            "SELECT estado FROM cotizaciones WHERE id = ?", (cotizacion_id,)
+        ).fetchone()
+        if not actual:
+            return {"ok": False, "error": "La cotización ya no existe."}
+        if actual["estado"] == "Convertida":
+            return {"ok": False, "error": "Esta cotización ya fue convertida en factura y no se puede eliminar."}
+
+        conn.execute("DELETE FROM cotizacion_detalle WHERE cotizacion_id = ?", (cotizacion_id,))
+        conn.execute("DELETE FROM cotizaciones WHERE id = ?", (cotizacion_id,))
+        conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        conn.rollback()
+        return {"ok": False, "error": str(e)}
+    finally:
+        conn.close()
+
+
 def listar_recientes(limite=20):
     conn = get_connection()
     filas = conn.execute(
