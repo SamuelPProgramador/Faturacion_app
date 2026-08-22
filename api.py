@@ -15,12 +15,19 @@ from db import database
 from db import productos as productos_db
 from db import clientes as clientes_db
 from db import facturas as facturas_db
+<<<<<<< HEAD
 from db import entradas as entradas_db
 from db import pdf_cotizacion
 from db import entradas as entradas_db
 from db import proveedores as proveedores_db
 from db import gastos as gastos_db
 from db import cotizaciones as cotizaciones_db
+=======
+from db import cotizaciones as cotizaciones_db
+from db import pdf_cotizacion
+from db import pdf_factura
+
+>>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
 
 class Api:
     def __init__(self):
@@ -97,6 +104,7 @@ class Api:
         return facturas_db.obtener_con_detalle(factura_id)
 
     # -----------------------------------------------------------
+<<<<<<< HEAD
     # Entradas
     # -----------------------------------------------------------
     def crear_entrada(self, datos):
@@ -165,6 +173,8 @@ class Api:
 
 
     # -----------------------------------------------------------
+=======
+>>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
     # Cotizaciones
     # -----------------------------------------------------------
     def previsualizar_numero_cotizacion(self):
@@ -181,6 +191,19 @@ class Api:
 
     def generar_pdf_cotizacion(self, cotizacion_id):
         resultado = pdf_cotizacion.generar(cotizacion_id)
+        if resultado.get("ok"):
+            try:
+                with open(resultado["ruta"], "rb") as f:
+                    resultado["base64"] = base64.b64encode(f.read()).decode("ascii")
+            except Exception as e:
+                resultado = {"ok": False, "error": f"El PDF se generó pero no se pudo leer: {e}"}
+        return resultado
+
+    def obtener_factura(self, factura_id):
+        return facturas_db.obtener_con_detalle(factura_id)
+
+    def generar_pdf_factura(self, factura_id):
+        resultado = pdf_factura.generar(factura_id)
         if resultado.get("ok"):
             try:
                 with open(resultado["ruta"], "rb") as f:

@@ -306,7 +306,7 @@ async function cargarVentasRecientes() {
   tbody.innerHTML = "";
 
   if (!ventas || ventas.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-faint); padding:24px;">Todavía no hay ventas registradas.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-faint); padding:24px;">Todavía no hay ventas registradas.</td></tr>`;
     return;
   }
 
@@ -321,10 +321,175 @@ async function cargarVentasRecientes() {
       <td>${v.metodo_pago}</td>
       <td>${badgeEstado}</td>
       <td class="cell-mono">${formatoMonedaFact(v.total)}</td>
+      <td><div class="cell-actions">
+        <button class="row-action" data-accion="pdf-factura" data-id="${v.id}" title="Ver PDF">${ICONO_PDF_FACT}</button>
+      </div></td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+document.getElementById("recientes-tbody").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-accion='pdf-factura']");
+  if (!btn) return;
+  verPdfFactura(Number(btn.dataset.id));
+});
+
+/* ------------------------- Vista previa / PDF de factura ------------------------- */
+
+const ICONO_PDF_FACT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h1"/><path d="M9 12h1"/><path d="M13 12h2"/><path d="M13 15h2"/></svg>`;
+
+let rutaPdfFacturaActual = null;
+
+function inicialesEmpresaFact(nombre) {
+  const limpio = (nombre || "").trim();
+  if (!limpio) return "?";
+  const partes = limpio.split(/\s+/).slice(0, 2);
+  return partes.map((p) => p[0].toUpperCase()).join("");
+}
+
+function fechaLegibleFact(valor) {
+  if (!valor) return "—";
+  const texto = String(valor).slice(0, 10);
+  const partes = texto.split("-");
+  if (partes.length !== 3) return texto;
+  const [y, m, d] = partes;
+  const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const idx = parseInt(m, 10) - 1;
+  if (idx < 0 || idx > 11) return texto;
+  return `${d} ${meses[idx]} ${y}`;
+}
+
+function badgeEstadoFact(estado) {
+  return estado === "Pagada"
+    ? `<span class="badge badge-success">Pagada</span>`
+    : `<span class="badge badge-warning">Pendiente</span>`;
+}
+
+function mostrarBannerModalPdfFact(mensaje, tipo) {
+  const banner = document.getElementById("modal-pdf-factura-banner");
+  banner.textContent = mensaje;
+  banner.className = "banner active banner-" + tipo;
+}
+
+function limpiarBannerModalPdfFact() {
+  const banner = document.getElementById("modal-pdf-factura-banner");
+  banner.className = "banner";
+  banner.textContent = "";
+}
+
+function renderDocPreviewFactura(fac, info) {
+  const moneda = (info && info.moneda) || "RD$";
+  const fmt = (v) => `${moneda} ${Number(v || 0).toLocaleString("es-DO", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const nombreEmpresa = (info && info.nombre_empresa) || "Mi Empresa";
+
+  const filas = (fac.lineas || []).map((l) => `
+    <tr>
+      <td>${escapeHtml(l.descripcion)}</td>
+      <td>${fmt(l.precio_unit)}</td>
+      <td>${Number(l.cantidad)}</td>
+      <td>${fmt(l.total_linea)}</td>
+    </tr>
+  `).join("");
+
+  const notasHtml = fac.notas
+    ? `<div class="doc-notas"><b>Notas:</b> ${escapeHtml(fac.notas)}</div>`
+    : "";
+
+  document.getElementById("pdf-factura-preview").innerHTML = `
+    <div class="doc-header">
+      <div class="doc-logo">${escapeHtml(inicialesEmpresaFact(nombreEmpresa))}</div>
+      <div class="doc-empresa">${escapeHtml(nombreEmpresa)}</div>
+      <div class="doc-subtitulo">Sistema interno de facturación</div>
+      <div class="doc-tipo-numero">FACTURA &nbsp;·&nbsp; ${escapeHtml(fac.numero)}</div>
+    </div>
+
+    <div class="doc-meta">
+      <div class="doc-meta-item"><span>Cliente</span><span>${escapeHtml(fac.cliente_nombre || "Consumidor final")}</span></div>
+      <div class="doc-meta-item"><span>Estado</span><span>${badgeEstadoFact(fac.estado)}</span></div>
+      <div class="doc-meta-item"><span>Fecha</span><span>${fechaLegibleFact(fac.fecha)}</span></div>
+      <div class="doc-meta-item"><span>Método de pago</span><span>${escapeHtml(fac.metodo_pago || "—")}</span></div>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr><th>Producto</th><th>Precio unit.</th><th>Cant.</th><th>Total línea</th></tr>
+      </thead>
+      <tbody>${filas}</tbody>
+    </table>
+
+    <div class="doc-totales">
+      <div class="doc-totales-row"><span>Subtotal</span><span>${fmt(fac.subtotal)}</span></div>
+      <div class="doc-totales-row"><span>Impuesto</span><span>${fmt(fac.impuesto)}</span></div>
+      <div class="doc-totales-row total"><span>Total</span><span>${fmt(fac.total)}</span></div>
+    </div>
+
+    ${notasHtml}
+
+    <div class="doc-footer">Generado automáticamente · ${escapeHtml(nombreEmpresa)}</div>
+  `;
+}
+
+async function verPdfFactura(id) {
+  const api = apiFact();
+  if (!api) return;
+
+  const [fac, info, resultadoPdf] = await Promise.all([
+    api.obtener_factura(id),
+    api.obtener_info_empresa(),
+    api.generar_pdf_factura(id),
+  ]);
+
+  if (!fac) {
+    mostrarBannerModalPdfFact("La factura ya no existe.", "error");
+    return;
+  }
+  if (!resultadoPdf.ok) {
+    mostrarBannerModalPdfFact(resultadoPdf.error || "No se pudo generar el PDF.", "error");
+    return;
+  }
+
+  renderDocPreviewFactura(fac, info);
+
+  rutaPdfFacturaActual = resultadoPdf.ruta;
+  limpiarBannerModalPdfFact();
+  document.getElementById("modal-pdf-factura-titulo").textContent = `Factura ${fac.numero}`;
+  document.getElementById("modal-pdf-factura").classList.add("active");
+}
+
+function cerrarModalPdfFactura() {
+  document.getElementById("modal-pdf-factura").classList.remove("active");
+  document.getElementById("pdf-factura-preview").innerHTML = "";
+  limpiarBannerModalPdfFact();
+  rutaPdfFacturaActual = null;
+}
+
+document.getElementById("modal-pdf-factura-cerrar").addEventListener("click", cerrarModalPdfFactura);
+document.getElementById("btn-pdf-factura-cerrar-footer").addEventListener("click", cerrarModalPdfFactura);
+document.getElementById("modal-pdf-factura").addEventListener("click", (e) => {
+  if (e.target.id === "modal-pdf-factura") cerrarModalPdfFactura();
+});
+
+document.getElementById("btn-pdf-factura-imprimir").addEventListener("click", async () => {
+  const api = apiFact();
+  if (!api || !rutaPdfFacturaActual) return;
+  const resultado = await api.imprimir_pdf(rutaPdfFacturaActual);
+  if (!resultado.ok) {
+    mostrarBannerModalPdfFact(resultado.error || "No se pudo abrir el PDF.", "error");
+  }
+});
+
+document.getElementById("btn-pdf-factura-descargar").addEventListener("click", async () => {
+  const api = apiFact();
+  if (!api || !rutaPdfFacturaActual) return;
+  const resultado = await api.guardar_pdf_como(rutaPdfFacturaActual);
+  if (resultado.cancelado) return;
+  if (!resultado.ok) {
+    mostrarBannerModalPdfFact(resultado.error || "No se pudo guardar el PDF.", "error");
+    return;
+  }
+  mostrarBannerModalPdfFact("PDF guardado correctamente.", "success");
+});
 
 document.querySelector('.nav-item[data-view="facturar"]').addEventListener("click", inicializarFacturar);
 window.addEventListener("pywebviewready", inicializarFacturar);

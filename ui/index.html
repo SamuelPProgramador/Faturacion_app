@@ -243,6 +243,7 @@
                 <th>Método</th>
                 <th>Estado</th>
                 <th>Total</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="recientes-tbody"></tbody>
@@ -441,6 +442,7 @@
             <p class="view-subtitle">Entradas de inventario / compras</p>
           </div>
         </div>
+<<<<<<< HEAD
 
         <div class="banner" id="entrada-banner"></div>
 
@@ -567,6 +569,12 @@
             <h3>Todavía no hay entradas registradas</h3>
             <p>Busca un producto arriba y registra la primera entrada de inventario.</p>
           </div>
+=======
+        <div class="card placeholder-card">
+          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+          <h3>Módulo de entradas</h3>
+          <p>Aquí vamos a registrar entradas de producto para que la existencia se actualice sola.</p>
+>>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
         </div>
       </section>
 
@@ -1293,13 +1301,42 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-pdf-factura">
+  <div class="modal modal-pdf">
+    <div class="modal-header">
+      <h2 id="modal-pdf-factura-titulo">Factura</h2>
+      <button class="modal-close" id="modal-pdf-factura-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-pdf-factura-banner" class="banner"></div>
+      <div id="pdf-factura-preview" class="doc-preview"></div>
+    </div>
+    <div class="modal-footer modal-footer-pdf">
+      <button type="button" class="btn btn-ghost" id="btn-pdf-factura-cerrar-footer">Cerrar</button>
+      <button type="button" class="btn btn-ghost" id="btn-pdf-factura-imprimir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+      <button type="button" class="btn btn-primary" id="btn-pdf-factura-descargar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script src="js/productos.js"></script>
 <script src="js/clientes.js"></script>
 <script src="js/facturar.js"></script>
+<<<<<<< HEAD
 <script src="js/proveedores.js"></script>
 <script src="js/entradas.js"></script>
 <script src="js/gastos.js"></script>
+=======
+>>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
 <script src="js/cotizaciones.js"></script>
 </body>
 </html>
