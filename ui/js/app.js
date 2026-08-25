@@ -59,12 +59,19 @@ function actualizarFecha() {
 }
 actualizarFecha();
 
-// --- carga el nombre real de la empresa desde la base de datos ---
+// --- carga el nombre real (y el logo, si hay uno) desde la base de datos ---
 function cargarInfoEmpresa() {
   if (!window.pywebview) return;
   window.pywebview.api.obtener_info_empresa().then((info) => {
-    if (info && info.nombre_empresa) {
+    if (!info) return;
+    if (info.nombre_empresa) {
       document.getElementById("brand-name").textContent = info.nombre_empresa;
+    }
+    const seal = document.querySelector(".brand-seal");
+    if (info.logo_base64) {
+      seal.innerHTML = `<img src="${info.logo_base64}" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+    } else {
+      seal.textContent = "EP";
     }
   });
 }

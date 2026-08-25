@@ -186,8 +186,6 @@ def init_db():
         )
     """)
 
-
-
     cur.execute("""
         CREATE TABLE IF NOT EXISTS cxc_pagos (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -266,6 +264,23 @@ def init_db():
         )
     """)
 
+    # ---------------------------------------------------------------
+    # USUARIOS (roles: admin_general / admin_cliente)
+    # ---------------------------------------------------------------
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre          TEXT NOT NULL,
+            usuario         TEXT UNIQUE NOT NULL,
+            password_hash   TEXT NOT NULL,
+            password_salt   TEXT NOT NULL,
+            rol             TEXT NOT NULL DEFAULT 'admin_cliente',
+            activo          INTEGER DEFAULT 1,
+            creado_en       TEXT DEFAULT CURRENT_TIMESTAMP,
+            actualizado_en  TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     _migrar_columnas_faltantes(cur)
     conn.commit()
@@ -276,6 +291,7 @@ def init_db():
         "rnc_empresa": "",
         "telefono_empresa": "",
         "direccion_empresa": "",
+        "logo_base64": "",
         "moneda": "RD$",
         "impuesto_pct": "0",
         "siguiente_numero_factura": "1",
@@ -288,7 +304,34 @@ def init_db():
         )
 
     conn.commit()
+    _sembrar_admin_general(cur)
+    conn.commit()
     conn.close()
+
+
+def _sembrar_admin_general(cur):
+    """
+    Crea la cuenta de Administrador General si todavia no existe ninguna.
+    IMPORTANTE: usuario/clave por defecto son 'admin' / 'admin123'.
+    Esta cuenta se crea igual en cada instalacion nueva del sistema, asi
+    que el usuario final DEBE cambiar la contrasena la primera vez que
+    entra (ver modulo de Configuracion > Usuarios).
+    """
+    from db.usuarios import hash_password
+
+    existe = cur.execute(
+        "SELECT COUNT(*) AS total FROM usuarios WHERE rol = 'admin_general'"
+    ).fetchone()["total"]
+
+    if existe == 0:
+        password_hash, salt = hash_password("admin123")
+        cur.execute(
+            """
+            INSERT INTO usuarios (nombre, usuario, password_hash, password_salt, rol, activo)
+            VALUES (?, ?, ?, ?, 'admin_general', 1)
+            """,
+            ("Administrador General", "admin", password_hash, salt),
+        )
 
 
 def _migrar_columnas_faltantes(cur):
@@ -346,5 +389,3 @@ def set_config(clave, valor):
     )
     conn.commit()
     conn.close()
-
-

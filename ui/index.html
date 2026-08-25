@@ -8,6 +8,30 @@
 </head>
 <body>
 
+<!-- =========================== PANTALLA DE LOGIN =========================== -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-seal">EP</div>
+    <h1 class="login-title">Iniciar sesión</h1>
+    <p class="login-subtitle">Sistema de Facturación e Inventario</p>
+
+    <form id="form-login" class="login-form">
+      <div class="form-field">
+        <label>Usuario</label>
+        <input type="text" id="login-usuario" autocomplete="username" required autofocus />
+      </div>
+      <div class="form-field">
+        <label>Contraseña</label>
+        <input type="password" id="login-password" autocomplete="current-password" required />
+      </div>
+      <p class="form-error" id="login-error"></p>
+      <button type="submit" class="btn btn-primary btn-cobrar">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<div class="app-shell" id="app-shell" style="display:none;">
+
 <div class="app-shell">
 
   <!-- =========================== SIDEBAR =========================== -->
@@ -86,7 +110,20 @@
       <div class="topbar-right">
         <span class="topbar-date" id="topbar-date">--</span>
         <div class="topbar-user">
-          <span class="user-avatar">A</span>
+             <header class="topbar">
+      <span class="topbar-title" id="view-heading">Resumen de ventas</span>
+      <div class="topbar-right">
+        <span class="topbar-date" id="topbar-date">--</span>
+        <div class="topbar-user" id="topbar-user-menu">
+          <span class="user-avatar" id="topbar-user-avatar">A</span>
+          <span id="topbar-user-nombre">Admin</span>
+          <span class="badge badge-muted" id="topbar-user-rol" style="margin-left:4px;">—</span>
+        </div>
+        <button class="btn btn-ghost" id="btn-cerrar-sesion" title="Cerrar sesión">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </header>>
           <span>Admin</span>
         </div>
       </div>
@@ -442,7 +479,6 @@
             <p class="view-subtitle">Entradas de inventario / compras</p>
           </div>
         </div>
-<<<<<<< HEAD
 
         <div class="banner" id="entrada-banner"></div>
 
@@ -569,12 +605,10 @@
             <h3>Todavía no hay entradas registradas</h3>
             <p>Busca un producto arriba y registra la primera entrada de inventario.</p>
           </div>
-=======
         <div class="card placeholder-card">
           <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
           <h3>Módulo de entradas</h3>
           <p>Aquí vamos a registrar entradas de producto para que la existencia se actualice sola.</p>
->>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
         </div>
       </section>
 
@@ -828,13 +862,129 @@
         <div class="view-header">
           <div>
             <h1 class="view-title">Configuración</h1>
-            <p class="view-subtitle">Datos de la empresa y preferencias del sistema</p>
+            <p class="view-subtitle">Datos de la empresa, preferencias y usuarios del sistema</p>
           </div>
         </div>
-        <div class="card placeholder-card">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/></svg>
-          <h3>Configuración del sistema</h3>
-          <p>Aquí vamos a poner el nombre de la empresa, logo, moneda, impuesto y numeración de facturas.</p>
+
+        <!-- pestañas -->
+        <div class="cfg-tabs">
+          <button class="cfg-tab active" data-tab="empresa">Datos de la empresa</button>
+          <button class="cfg-tab" data-tab="preferencias">Preferencias</button>
+          <button class="cfg-tab" data-tab="usuarios" id="cfg-tab-usuarios" style="display:none;">Usuarios</button>
+        </div>
+
+        <div class="banner" id="cfg-banner"></div>
+
+        <!-- ---- TAB: Datos de la empresa ---- -->
+        <div class="cfg-panel active" id="cfg-panel-empresa">
+          <div class="card" style="padding:22px;">
+            <p class="cfg-lock-note" id="cfg-empresa-lock-note" style="display:none;">
+              🔒 Solo el Administrador General puede modificar estos datos.
+            </p>
+
+            <div class="form-grid">
+              <div class="form-field span-2">
+                <label>Logo</label>
+                <div style="display:flex; align-items:center; gap:14px;">
+                  <div class="cfg-logo-preview" id="cfg-logo-preview">EP</div>
+                  <div>
+                    <input type="file" id="cfg-logo-input" accept="image/*" style="display:none;" />
+                    <button type="button" class="btn btn-ghost" id="btn-cambiar-logo">Cambiar logo</button>
+                    <button type="button" class="btn btn-ghost" id="btn-quitar-logo">Quitar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field span-2">
+                <label>Nombre de la empresa *</label>
+                <input type="text" id="cfg-nombre-empresa" placeholder="Ej. Empanadas y Pastelitos" />
+              </div>
+
+              <div class="form-field">
+                <label>RNC</label>
+                <input type="text" id="cfg-rnc-empresa" placeholder="Opcional" />
+              </div>
+
+              <div class="form-field">
+                <label>Teléfono</label>
+                <input type="text" id="cfg-telefono-empresa" placeholder="Opcional" />
+              </div>
+
+              <div class="form-field span-2">
+                <label>Dirección</label>
+                <input type="text" id="cfg-direccion-empresa" placeholder="Opcional" />
+              </div>
+            </div>
+
+            <p class="form-error" id="cfg-empresa-error"></p>
+
+            <button type="button" class="btn btn-primary" id="btn-guardar-empresa" style="margin-top:16px;">
+              Guardar datos de la empresa
+            </button>
+          </div>
+        </div>
+
+        <!-- ---- TAB: Preferencias ---- -->
+        <div class="cfg-panel" id="cfg-panel-preferencias">
+          <div class="card" style="padding:22px;">
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Moneda</label>
+                <input type="text" id="cfg-moneda" placeholder="Ej. RD$" />
+              </div>
+              <div class="form-field">
+                <label>Impuesto (%)</label>
+                <input type="number" id="cfg-impuesto" min="0" step="0.01" placeholder="Ej. 18" />
+              </div>
+            </div>
+            <p class="form-error" id="cfg-preferencias-error"></p>
+            <button type="button" class="btn btn-primary" id="btn-guardar-preferencias" style="margin-top:16px;">
+              Guardar preferencias
+            </button>
+          </div>
+
+          <div class="card" style="padding:22px; margin-top:16px;" id="cfg-numeracion-card">
+            <p class="cfg-lock-note">🔒 Numeración de documentos — solo el Administrador General.</p>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Siguiente número de factura</label>
+                <input type="number" id="cfg-num-factura" min="1" step="1" />
+              </div>
+              <div class="form-field">
+                <label>Siguiente número de cotización</label>
+                <input type="number" id="cfg-num-cotizacion" min="1" step="1" />
+              </div>
+            </div>
+            <p class="form-error" id="cfg-numeracion-error"></p>
+            <button type="button" class="btn btn-primary" id="btn-guardar-numeracion" style="margin-top:16px;">
+              Guardar numeración
+            </button>
+          </div>
+        </div>
+
+        <!-- ---- TAB: Usuarios (solo admin_general) ---- -->
+        <div class="cfg-panel" id="cfg-panel-usuarios">
+          <div class="view-header" style="margin-bottom:14px;">
+            <div></div>
+            <button class="btn btn-primary" id="btn-nuevo-usuario">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nuevo usuario
+            </button>
+          </div>
+          <div class="card table-card">
+            <table class="data-table" id="tabla-usuarios">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="usuarios-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1221,6 +1371,55 @@
   </div>
 </div>
 
+<!-- =========================== MODAL: USUARIO =========================== -->
+<div class="modal-overlay" id="modal-usuario">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h2 id="modal-usuario-titulo">Nuevo usuario</h2>
+      <button class="modal-close" id="modal-usuario-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="form-usuario" class="modal-body">
+      <input type="hidden" id="u-id" />
+
+      <div class="form-grid">
+        <div class="form-field span-2">
+          <label>Nombre completo *</label>
+          <input type="text" id="u-nombre" placeholder="Ej. Rosa Martínez" required />
+        </div>
+
+        <div class="form-field span-2" id="u-usuario-field">
+          <label>Usuario (para iniciar sesión) *</label>
+          <input type="text" id="u-usuario" placeholder="Ej. rosa" required />
+        </div>
+
+        <div class="form-field span-2">
+          <label id="u-password-label">Contraseña *</label>
+          <input type="password" id="u-password" placeholder="Mínimo 6 caracteres" />
+        </div>
+
+        <div class="form-field span-2">
+          <label>Rol</label>
+          <select id="u-rol">
+            <option value="admin_cliente">Administrador del Cliente (operativo)</option>
+            <option value="admin_general">Administrador General (acceso total)</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="form-error" id="form-usuario-error"></p>
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-usuario">Cancelar</button>
+      <button type="submit" form="form-usuario" class="btn btn-primary">Guardar usuario</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- =========================== MODAL: CONVERTIR COTIZACION EN FACTURA =========================== -->
 <div class="modal-overlay" id="modal-convertir-cot">
   <div class="modal" style="max-width:420px;">
@@ -1327,16 +1526,15 @@
   </div>
 </div>
 
+<script src="js/auth.js"></script>
 <script src="js/app.js"></script>
 <script src="js/productos.js"></script>
 <script src="js/clientes.js"></script>
 <script src="js/facturar.js"></script>
-<<<<<<< HEAD
 <script src="js/proveedores.js"></script>
 <script src="js/entradas.js"></script>
 <script src="js/gastos.js"></script>
-=======
->>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
 <script src="js/cotizaciones.js"></script>
+<script src="js/configuracion.js"></script>
 </body>
 </html>

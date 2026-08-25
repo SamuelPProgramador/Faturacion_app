@@ -992,3 +992,122 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .modal-pdf .modal-body > .banner { margin: 0 0 16px 0; }
+
+
+/* =====================================================================
+   Login + Configuracion (tabs, candado de permisos, logo)
+   AGREGAR AL FINAL de ui/css/style.css
+   ===================================================================== */
+
+.login-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--sidebar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.login-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 360px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.login-seal {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px auto;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+.login-form .btn-cobrar { margin-top: 6px; }
+
+/* --- tabs de Configuracion --- */
+
+.cfg-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.cfg-tab {
+  border: none;
+  background: transparent;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.cfg-tab:hover { color: var(--text-primary); }
+.cfg-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.cfg-panel { display: none; }
+.cfg-panel.active { display: block; }
+
+.cfg-lock-note {
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 0 0 16px 0;
+}
+
+.cfg-logo-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--bg-main);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.cfg-logo-preview img { width: 100%; height: 100%; object-fit: cover; }

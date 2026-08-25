@@ -5,36 +5,51 @@ Cada metodo publico de aqui queda disponible en el JavaScript como
 pywebview.api.nombre_del_metodo(...)
 """
 
-import os
-import sys
-import subprocess
-import shutil
-import base64
 import webview
 from db import database
 from db import productos as productos_db
 from db import clientes as clientes_db
 from db import facturas as facturas_db
-<<<<<<< HEAD
-from db import entradas as entradas_db
-from db import pdf_cotizacion
 from db import entradas as entradas_db
 from db import proveedores as proveedores_db
 from db import gastos as gastos_db
 from db import cotizaciones as cotizaciones_db
-import 
-from db import cotizaciones as cotizaciones_db
-from db import pdf_cotizacion
-from db import pdf_factura
+from db import usuarios as usuarios_db
+from db import configuracion as configuracion_db
 
->>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
 
 class Api:
     def __init__(self):
         self._window = None
+        self._usuario_actual = None  # dict con id/nombre/usuario/rol, o None si no ha entrado
 
     def set_window(self, window):
         self._window = window
+
+    # -----------------------------------------------------------
+    # Sesion / autenticacion
+    # -----------------------------------------------------------
+    def iniciar_sesion(self, usuario, password):
+        resultado = usuarios_db.iniciar_sesion(usuario, password)
+        if resultado["ok"]:
+            self._usuario_actual = resultado["usuario"]
+        return resultado
+
+    def cerrar_sesion(self):
+        self._usuario_actual = None
+        return {"ok": True}
+
+    def obtener_sesion_actual(self):
+        return self._usuario_actual
+
+    def _requiere_admin_general(self):
+        """Chequeo de permiso real (no solo de pantalla). Usar antes de cualquier
+        accion sensible. Devuelve None si esta autorizado, o un dict de error."""
+        if not self._usuario_actual:
+            return {"ok": False, "error": "Debes iniciar sesión."}
+        if self._usuario_actual["rol"] != "admin_general":
+            return {"ok": False, "error": "Solo el Administrador General puede hacer esto."}
+        return None
 
     # -----------------------------------------------------------
     # Configuracion / info general de la empresa
@@ -42,10 +57,62 @@ class Api:
     def obtener_info_empresa(self):
         return {
             "nombre_empresa": database.get_config("nombre_empresa", "Mi Empresa"),
+            "logo_base64": database.get_config("logo_base64", ""),
             "moneda": database.get_config("moneda", "RD$"),
             "impuesto_pct": float(database.get_config("impuesto_pct", "0") or 0),
         }
 
+    def obtener_configuracion_completa(self):
+        return configuracion_db.obtener_todo()
+
+    def actualizar_datos_empresa(self, datos):
+        # PROTEGIDO: solo admin_general puede cambiar nombre/logo/RNC/etc.
+        error = self._requiere_admin_general()
+        if error:
+            return error
+        return configuracion_db.actualizar_datos_empresa(datos)
+
+    def actualizar_preferencias(self, datos):
+        # Moneda e impuesto: cualquier admin logueado puede ajustarlos (es
+        # configuracion normal del negocio, no tiene que ver con la marca).
+        if not self._usuario_actual:
+            return {"ok": False, "error": "Debes iniciar sesión."}
+        return configuracion_db.actualizar_preferencias(datos)
+
+    def actualizar_numeracion(self, datos):
+        # PROTEGIDO: solo admin_general, para evitar reinicios accidentales
+        # de la numeracion de facturas/cotizaciones.
+        error = self._requiere_admin_general()
+        if error:
+            return error
+        return configuracion_db.actualizar_numeracion(datos)
+
+    # -----------------------------------------------------------
+    # Usuarios (solo admin_general gestiona cuentas)
+    # -----------------------------------------------------------
+    def listar_usuarios(self, incluir_inactivos=False):
+        error = self._requiere_admin_general()
+        if error:
+            return []
+        return usuarios_db.listar(incluir_inactivos)
+
+    def crear_usuario(self, datos):
+        error = self._requiere_admin_general()
+        if error:
+            return error
+        return usuarios_db.crear(datos)
+
+    def cambiar_password_usuario(self, usuario_id, nueva_password):
+        error = self._requiere_admin_general()
+        if error:
+            return error
+        return usuarios_db.cambiar_password(usuario_id, nueva_password)
+
+    def cambiar_estado_usuario(self, usuario_id, activo):
+        error = self._requiere_admin_general()
+        if error:
+            return error
+        return usuarios_db.cambiar_estado(usuario_id, activo)
     # -----------------------------------------------------------
     # Productos
     # -----------------------------------------------------------
@@ -104,7 +171,6 @@ class Api:
         return facturas_db.obtener_con_detalle(factura_id)
 
     # -----------------------------------------------------------
-<<<<<<< HEAD
     # Entradas
     # -----------------------------------------------------------
     def crear_entrada(self, datos):
@@ -173,8 +239,6 @@ class Api:
 
 
     # -----------------------------------------------------------
-=======
->>>>>>> 67842e170161e9a5859dc563791a03ef9a1252a9
     # Cotizaciones
     # -----------------------------------------------------------
     def previsualizar_numero_cotizacion(self):
