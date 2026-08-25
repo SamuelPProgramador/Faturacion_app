@@ -22,7 +22,7 @@ from db import entradas as entradas_db
 from db import proveedores as proveedores_db
 from db import gastos as gastos_db
 from db import cotizaciones as cotizaciones_db
-=======
+import 
 from db import cotizaciones as cotizaciones_db
 from db import pdf_cotizacion
 from db import pdf_factura
