@@ -16,6 +16,7 @@ from db import gastos as gastos_db
 from db import cotizaciones as cotizaciones_db
 from db import usuarios as usuarios_db
 from db import configuracion as configuracion_db
+from db import cxc as cxc_db
 
 
 class Api:
@@ -335,7 +336,20 @@ class Api:
 
     def convertir_cotizacion_a_factura(self, cotizacion_id, metodo_pago="Efectivo"):
         return cotizaciones_db.convertir_a_factura(cotizacion_id, metodo_pago)
+    # -----------------------------------------------------------
+    # Cuentas por Cobrar (CxC) + Estado de Cuenta
+    # -----------------------------------------------------------
+    def listar_cxc(self, incluir_pagadas=False, busqueda=None):
+        return cxc_db.listar(incluir_pagadas=incluir_pagadas, busqueda=busqueda)
 
+    def obtener_resumen_cxc(self):
+        return cxc_db.obtener_resumen()
+
+    def registrar_pago_cxc(self, cxc_id, monto, metodo_pago="Efectivo"):
+        return cxc_db.registrar_pago(cxc_id, monto, metodo_pago)
+
+    def obtener_estado_cuenta(self, cliente_id):
+        return cxc_db.obtener_estado_cuenta(cliente_id)
     # -----------------------------------------------------------
     # Control de la ventana
     # -----------------------------------------------------------

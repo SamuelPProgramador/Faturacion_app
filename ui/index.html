@@ -670,177 +670,60 @@
             <p class="view-subtitle">Saldos pendientes de clientes</p>
           </div>
         </div>
-        <div class="card placeholder-card">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <h3>Módulo de CxC</h3>
-          <p>Aquí vamos a ver quién debe, cuánto y desde cuándo, y registrar los abonos.</p>
-        </div>
-      </section>
-      <!-- ---------- GASTOS ---------- -->
-      <section class="view" id="view-gastos">
-        <div class="view-header">
-          <div>
-            <h1 class="view-title">Gastos</h1>
-            <p class="view-subtitle">Materia prima, gas, transporte, electricidad y otros gastos</p>
-          </div>
-          <button class="btn btn-primary" id="btn-nuevo-gasto">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nuevo gasto
-          </button>
-        </div>
 
-        <div class="kpi-row" id="gastos-kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
-          <!-- tarjetas generadas por JS, una por categoria + total -->
+        <div class="kpi-row">
+          <div class="card kpi-card">
+            <div class="kpi-label">Total por cobrar</div>
+            <div class="kpi-value" id="cxc-kpi-total">RD$ 0.00</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Facturas vencidas</div>
+            <div class="kpi-value" id="cxc-kpi-vencidas">0</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Monto vencido</div>
+            <div class="kpi-value" id="cxc-kpi-monto-vencido">RD$ 0.00</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Clientes con deuda</div>
+            <div class="kpi-value" id="cxc-kpi-clientes">0</div>
+          </div>
         </div>
 
         <div class="toolbar">
           <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="gasto-buscar" placeholder="Buscar por concepto o notas..." />
-          </div>
-          <select id="gasto-filtro-categoria" style="max-width:200px;">
-            <option value="">Todas las categorías</option>
-            <option value="Materia Prima">Materia Prima</option>
-            <option value="Gas">Gas</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Electricidad/Servicios">Electricidad/Servicios</option>
-            <option value="Otros">Otros</option>
-          </select>
-          <input type="date" id="gasto-filtro-desde" style="max-width:160px;" />
-          <input type="date" id="gasto-filtro-hasta" style="max-width:160px;" />
-        </div>
-
-        <div class="card table-card">
-          <table class="data-table" id="tabla-gastos">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Categoría</th>
-                <th>Concepto</th>
-                <th>Proveedor</th>
-                <th>Método</th>
-                <th>Monto</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="gastos-tbody"></tbody>
-          </table>
-          <div class="table-empty" id="gastos-empty" style="display:none;">
-            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <h3>Todavía no hay gastos registrados</h3>
-            <p>Agrega el primero con el botón "Nuevo gasto".</p>
-          </div>
-        </div>
-      </section>
-      <!-- ---------- PROVEEDORES ---------- -->
-      <section class="view" id="view-proveedores">
-        <div class="view-header">
-          <div>
-            <h1 class="view-title">Proveedores</h1>
-            <p class="view-subtitle">Directorio de proveedores, compras y deudas</p>
-          </div>
-          <button class="btn btn-primary" id="btn-nuevo-proveedor">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nuevo proveedor
-          </button>
-        </div>
-
-        <div class="toolbar">
-          <div class="search-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="prov-buscar" placeholder="Buscar por nombre, código, teléfono o producto que suministra..." />
+            <input type="text" id="cxc-buscar" placeholder="Buscar por cliente o número de factura..." />
           </div>
           <label class="toggle-inline">
-            <input type="checkbox" id="prov-ver-inactivos" />
-            Ver también inactivos
+            <input type="checkbox" id="cxc-ver-pagadas" />
+            Ver también pagadas
           </label>
         </div>
 
         <div class="card table-card">
-          <table class="data-table" id="tabla-proveedores">
+          <table class="data-table" id="tabla-cxc">
             <thead>
               <tr>
-                <th>Código</th>
-                <th>Proveedor</th>
-                <th>Teléfono</th>
-                <th>Suministra</th>
-                <th>Comprado</th>
-                <th>Deuda actual</th>
-                <th>Estado</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="prov-tbody"></tbody>
-          </table>
-          <div class="table-empty" id="prov-empty" style="display:none;">
-            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/></svg>
-            <h3>Todavía no hay proveedores</h3>
-            <p>Agrega el primero con el botón "Nuevo proveedor".</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ---------- DETALLE DE PROVEEDOR (compras + deudas) ---------- -->
-      <section class="view" id="view-proveedor-detalle">
-        <div class="view-header">
-          <div>
-            <button class="btn btn-ghost" id="btn-volver-proveedores" style="margin-bottom:10px;">← Volver a Proveedores</button>
-            <h1 class="view-title" id="provdet-nombre">Proveedor</h1>
-            <p class="view-subtitle" id="provdet-suministra">—</p>
-          </div>
-        </div>
-
-        <div class="kpi-row" style="grid-template-columns: repeat(2, 1fr);">
-          <div class="card kpi-card">
-            <div class="kpi-label">Total comprado históricamente</div>
-            <div class="kpi-value" id="provdet-total-comprado">RD$ 0.00</div>
-          </div>
-          <div class="card kpi-card">
-            <div class="kpi-label">Deuda pendiente actual</div>
-            <div class="kpi-value" id="provdet-deuda">RD$ 0.00</div>
-          </div>
-        </div>
-
-        <div class="card table-card">
-          <div class="table-card-header">Deudas pendientes</div>
-          <table class="data-table" id="tabla-provdet-deudas">
-            <thead>
-              <tr>
+                <th>Cliente</th>
+                <th>Factura</th>
                 <th>Fecha</th>
                 <th>Vence</th>
                 <th>Monto original</th>
                 <th>Saldo pendiente</th>
+                <th>Estado</th>
                 <th></th>
               </tr>
             </thead>
-            <tbody id="provdet-deudas-tbody"></tbody>
+            <tbody id="cxc-tbody"></tbody>
           </table>
-          <div class="table-empty" id="provdet-deudas-empty" style="display:none;">
-            <p>Este proveedor no tiene deudas pendientes.</p>
-          </div>
-        </div>
-
-        <div class="card table-card" style="margin-top:22px;">
-          <div class="table-card-header">Historial de compras</div>
-          <table class="data-table" id="tabla-provdet-compras">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Costo unit.</th>
-                <th>Total</th>
-                <th>Método</th>
-              </tr>
-            </thead>
-            <tbody id="provdet-compras-tbody"></tbody>
-          </table>
-          <div class="table-empty" id="provdet-compras-empty" style="display:none;">
-            <p>Todavía no le has comprado nada a este proveedor.</p>
+          <div class="table-empty" id="cxc-empty" style="display:none;">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <h3>No hay cuentas por cobrar pendientes</h3>
+            <p>Aparecerán aquí cuando factures a crédito a algún cliente.</p>
           </div>
         </div>
       </section>
-
 
       <!-- ---------- ESTADO DE CUENTA ---------- -->
       <section class="view" id="view-estadocuenta">
@@ -850,10 +733,60 @@
             <p class="view-subtitle">Historial de cargos y abonos por cliente</p>
           </div>
         </div>
-        <div class="card placeholder-card">
+
+        <div class="card pos-block" style="margin-bottom:18px;">
+          <label class="pos-block-label">Cliente</label>
+          <div class="autocomplete-wrapper" id="edc-cliente-wrapper">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="edc-cliente-buscar" placeholder="Buscar cliente por nombre, código o teléfono..." autocomplete="off" />
+            </div>
+            <div class="autocomplete-results" id="edc-cliente-resultados"></div>
+          </div>
+          <div class="cliente-chip" id="edc-cliente-chip" style="display:none;">
+            <span>👤</span>
+            <span id="edc-cliente-chip-nombre">—</span>
+            <button type="button" id="edc-cliente-quitar" title="Quitar">✕</button>
+          </div>
+        </div>
+
+        <div id="edc-contenido" style="display:none;">
+          <div class="kpi-row" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="card kpi-card">
+              <div class="kpi-label">Total facturado a crédito</div>
+              <div class="kpi-value" id="edc-total-facturado">RD$ 0.00</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-label">Total pagado</div>
+              <div class="kpi-value" id="edc-total-pagado">RD$ 0.00</div>
+            </div>
+            <div class="card kpi-card">
+              <div class="kpi-label">Saldo actual</div>
+              <div class="kpi-value" id="edc-saldo-actual">RD$ 0.00</div>
+            </div>
+          </div>
+
+          <div class="card table-card">
+            <div class="table-card-header">Movimientos</div>
+            <table class="data-table" id="tabla-edc">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Tipo</th>
+                  <th>Monto</th>
+                  <th>Saldo</th>
+                </tr>
+              </thead>
+              <tbody id="edc-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card placeholder-card" id="edc-vacio">
           <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <h3>Estado de cuenta por cliente</h3>
-          <p>Aquí vamos a elegir un cliente y ver su historial completo: facturas a crédito y abonos, con el saldo corriendo — listo para imprimir o enviar. Se activa cuando tengamos Clientes, Facturar y CxC listos.</p>
+          <h3>Elige un cliente arriba</h3>
+          <p>Vas a ver su historial completo de facturas a crédito y abonos, con el saldo corriendo.</p>
         </div>
       </section>
 
@@ -1371,6 +1304,46 @@
   </div>
 </div>
 
+<!-- =========================== MODAL: PAGAR CxC =========================== -->
+<div class="modal-overlay" id="modal-pagar-cxc">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h2>Registrar pago de cliente</h2>
+      <button class="modal-close" id="modal-pagar-cxc-cerrar" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="pagar-cxc-id" />
+      <p style="font-size:13.5px; color:var(--text-secondary); margin:0 0 14px;">
+        Saldo pendiente: <strong id="pagar-cxc-saldo">RD$ 0.00</strong>
+      </p>
+      <div class="form-field">
+        <label>Monto a pagar</label>
+        <div class="input-prefixed">
+          <span class="prefix">RD$</span>
+          <input type="number" id="pagar-cxc-monto" min="0.01" step="0.01" />
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Método de pago</label>
+        <select id="pagar-cxc-metodo">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Transferencia">Transferencia</option>
+        </select>
+      </div>
+      <p class="form-error" id="pagar-cxc-error"></p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-pagar-cxc">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btn-confirmar-pagar-cxc">Registrar pago</button>
+    </div>
+  </div>
+</div>
+
 <!-- =========================== MODAL: USUARIO =========================== -->
 <div class="modal-overlay" id="modal-usuario">
   <div class="modal" style="max-width:440px;">
@@ -1535,6 +1508,7 @@
 <script src="js/entradas.js"></script>
 <script src="js/gastos.js"></script>
 <script src="js/cotizaciones.js"></script>
+<script src="js/cxc.js"></script>
 <script src="js/configuracion.js"></script>
 </body>
 </html>
