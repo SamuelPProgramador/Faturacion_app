@@ -17,7 +17,7 @@ from db import cotizaciones as cotizaciones_db
 from db import usuarios as usuarios_db
 from db import configuracion as configuracion_db
 from db import cxc as cxc_db
-
+from db import reportes as reportes_db
 
 class Api:
     def __init__(self):
@@ -350,6 +350,17 @@ class Api:
 
     def obtener_estado_cuenta(self, cliente_id):
         return cxc_db.obtener_estado_cuenta(cliente_id)
+    # -----------------------------------------------------------
+    # Resumen de ventas (dashboard)
+    # -----------------------------------------------------------
+    def obtener_resumen_dashboard(self):
+        return reportes_db.resumen_dashboard()
+
+    def ventas_por_periodo(self, periodo="dia"):
+        return reportes_db.ventas_por_periodo(periodo)
+
+    def productos_mas_vendidos_periodo(self, periodo="dia", limite=8):
+        return reportes_db.productos_mas_vendidos_periodo(periodo, limite)
     # -----------------------------------------------------------
     # Control de la ventana
     # -----------------------------------------------------------

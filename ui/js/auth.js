@@ -48,6 +48,7 @@ function entrarAlSistema() {
   cargarInfoEmpresa();
 
   goToView("resumen");
+  if (typeof cargarResumenCompleto === "function") cargarResumenCompleto();
 }
 
 function pintarUsuarioEnTopbar() {

@@ -132,7 +132,7 @@
     <main class="content">
 
       <!-- ---------- RESUMEN DE VENTAS ---------- -->
-      <section class="view active" id="view-resumen">
+            <section class="view active" id="view-resumen">
         <div class="view-header">
           <div>
             <h1 class="view-title">Resumen de ventas</h1>
@@ -143,26 +143,48 @@
         <div class="kpi-row">
           <div class="card kpi-card">
             <div class="kpi-label">Ventas de hoy</div>
-            <div class="kpi-value">RD$ 0.00</div>
+            <div class="kpi-value" id="resumen-kpi-ventas-hoy">RD$ 0.00</div>
           </div>
           <div class="card kpi-card">
-            <div class="kpi-label">Facturas emitidas</div>
-            <div class="kpi-value">0</div>
+            <div class="kpi-label">Facturas emitidas hoy</div>
+            <div class="kpi-value" id="resumen-kpi-facturas-hoy">0</div>
           </div>
           <div class="card kpi-card">
             <div class="kpi-label">Cuentas por cobrar</div>
-            <div class="kpi-value">RD$ 0.00</div>
+            <div class="kpi-value" id="resumen-kpi-cxc">RD$ 0.00</div>
           </div>
           <div class="card kpi-card">
             <div class="kpi-label">Productos con bajo stock</div>
-            <div class="kpi-value">0</div>
+            <div class="kpi-value" id="resumen-kpi-bajo-stock">0</div>
           </div>
         </div>
 
-        <div class="card placeholder-card">
-          <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-          <h3>Gráfico de ventas próximamente</h3>
-          <p>Aquí vamos a agregar el gráfico de ventas por día/semana/mes y el detalle de la actividad reciente.</p>
+        <div class="cfg-tabs" id="resumen-periodo-tabs">
+          <button class="cfg-tab active" data-periodo="dia">Ventas por día</button>
+          <button class="cfg-tab" data-periodo="semana">Ventas por semana</button>
+          <button class="cfg-tab" data-periodo="mes">Ventas por mes</button>
+        </div>
+
+        <div class="card" style="padding:22px;">
+          <div class="bar-chart" id="resumen-bar-chart"></div>
+        </div>
+
+        <div class="card table-card" style="margin-top:18px;">
+          <div class="table-card-header" id="resumen-top-productos-header">Producto más vendido — hoy</div>
+          <table class="data-table" id="tabla-top-productos">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Cantidad vendida</th>
+                <th>Total vendido</th>
+              </tr>
+            </thead>
+            <tbody id="top-productos-tbody"></tbody>
+          </table>
+          <div class="table-empty" id="top-productos-empty" style="display:none;">
+            <p>No hay ventas registradas en este período todavía.</p>
+          </div>
         </div>
       </section>
 
@@ -471,7 +493,6 @@
       </section>
 
       <!-- ---------- ENTRADAS ---------- -->
-            <!-- ---------- ENTRADAS ---------- -->
       <section class="view" id="view-entradas">
         <div class="view-header">
           <div>
@@ -658,6 +679,172 @@
             <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             <h3>Todavía no hay clientes</h3>
             <p>Agrega el primero con el botón "Nuevo cliente".</p>
+          </div>
+        </div>
+      </section>
+
+            <!-- ---------- PROVEEDORES ---------- -->
+      <section class="view" id="view-proveedores">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Proveedores</h1>
+            <p class="view-subtitle">Directorio de proveedores, compras y deudas</p>
+          </div>
+          <button class="btn btn-primary" id="btn-nuevo-proveedor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo proveedor
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="prov-buscar" placeholder="Buscar por nombre, código, teléfono o producto que suministra..." />
+          </div>
+          <label class="toggle-inline">
+            <input type="checkbox" id="prov-ver-inactivos" />
+            Ver también inactivos
+          </label>
+        </div>
+
+        <div class="card table-card">
+          <table class="data-table" id="tabla-proveedores">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Proveedor</th>
+                <th>Teléfono</th>
+                <th>Suministra</th>
+                <th>Comprado</th>
+                <th>Deuda actual</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="prov-tbody"></tbody>
+          </table>
+          <div class="table-empty" id="prov-empty" style="display:none;">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/></svg>
+            <h3>Todavía no hay proveedores</h3>
+            <p>Agrega el primero con el botón "Nuevo proveedor".</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- DETALLE DE PROVEEDOR (compras + deudas) ---------- -->
+      <section class="view" id="view-proveedor-detalle">
+        <div class="view-header">
+          <div>
+            <button class="btn btn-ghost" id="btn-volver-proveedores" style="margin-bottom:10px;">← Volver a Proveedores</button>
+            <h1 class="view-title" id="provdet-nombre">Proveedor</h1>
+            <p class="view-subtitle" id="provdet-suministra">—</p>
+          </div>
+        </div>
+
+        <div class="kpi-row" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="card kpi-card">
+            <div class="kpi-label">Total comprado históricamente</div>
+            <div class="kpi-value" id="provdet-total-comprado">RD$ 0.00</div>
+          </div>
+          <div class="card kpi-card">
+            <div class="kpi-label">Deuda pendiente actual</div>
+            <div class="kpi-value" id="provdet-deuda">RD$ 0.00</div>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div class="table-card-header">Deudas pendientes</div>
+          <table class="data-table" id="tabla-provdet-deudas">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Vence</th>
+                <th>Monto original</th>
+                <th>Saldo pendiente</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="provdet-deudas-tbody"></tbody>
+          </table>
+          <div class="table-empty" id="provdet-deudas-empty" style="display:none;">
+            <p>Este proveedor no tiene deudas pendientes.</p>
+          </div>
+        </div>
+
+        <div class="card table-card" style="margin-top:22px;">
+          <div class="table-card-header">Historial de compras</div>
+          <table class="data-table" id="tabla-provdet-compras">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Costo unit.</th>
+                <th>Total</th>
+                <th>Método</th>
+              </tr>
+            </thead>
+            <tbody id="provdet-compras-tbody"></tbody>
+          </table>
+          <div class="table-empty" id="provdet-compras-empty" style="display:none;">
+            <p>Todavía no le has comprado nada a este proveedor.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- GASTOS ---------- -->
+      <section class="view" id="view-gastos">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Gastos</h1>
+            <p class="view-subtitle">Materia prima, gas, transporte, electricidad y otros gastos</p>
+          </div>
+          <button class="btn btn-primary" id="btn-nuevo-gasto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo gasto
+          </button>
+        </div>
+
+        <div class="kpi-row" id="gastos-kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+          <!-- tarjetas generadas por JS, una por categoria + total -->
+        </div>
+
+        <div class="toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="gasto-buscar" placeholder="Buscar por concepto o notas..." />
+          </div>
+          <select id="gasto-filtro-categoria" style="max-width:200px;">
+            <option value="">Todas las categorías</option>
+            <option value="Materia Prima">Materia Prima</option>
+            <option value="Gas">Gas</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Electricidad/Servicios">Electricidad/Servicios</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <input type="date" id="gasto-filtro-desde" style="max-width:160px;" />
+          <input type="date" id="gasto-filtro-hasta" style="max-width:160px;" />
+        </div>
+
+        <div class="card table-card">
+          <table class="data-table" id="tabla-gastos">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Categoría</th>
+                <th>Concepto</th>
+                <th>Proveedor</th>
+                <th>Método</th>
+                <th>Monto</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="gastos-tbody"></tbody>
+          </table>
+          <div class="table-empty" id="gastos-empty" style="display:none;">
+            <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <h3>Todavía no hay gastos registrados</h3>
+            <p>Agrega el primero con el botón "Nuevo gasto".</p>
           </div>
         </div>
       </section>
@@ -1509,6 +1696,7 @@
 <script src="js/gastos.js"></script>
 <script src="js/cotizaciones.js"></script>
 <script src="js/cxc.js"></script>
+<script src="js/resumen.js"></script>
 <script src="js/configuracion.js"></script>
 </body>
 </html>
