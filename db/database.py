@@ -93,6 +93,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS facturas (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
             numero          TEXT UNIQUE,
+            ncf             TEXT,
             cliente_id      INTEGER,
             fecha           TEXT DEFAULT CURRENT_TIMESTAMP,
             subtotal        REAL NOT NULL DEFAULT 0,
@@ -362,6 +363,9 @@ def _migrar_columnas_faltantes(cur):
             "proveedor_id": "INTEGER",
             "metodo_pago": "TEXT DEFAULT 'Contado'",
             "estado": "TEXT DEFAULT 'Pagada'",
+        },
+            "facturas": {
+            "ncf": "TEXT",
         },
     }
     for tabla, columnas in columnas_esperadas.items():

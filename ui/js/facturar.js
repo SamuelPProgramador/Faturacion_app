@@ -71,6 +71,23 @@ function pintarResultadosCliente(clientes) {
   });
   resultadosCliente.classList.add("active");
 }
+// --- boton de flechita: muestra TODOS los clientes activos, sin escribir nada ---
+document.getElementById("fact-cliente-desplegar").addEventListener("click", async () => {
+  const api = apiFact();
+  if (!api) return;
+  inputClienteBuscar.value = "";
+  const clientes = await api.listar_clientes(false, null);
+  pintarResultadosCliente(clientes);
+});
+
+// --- boton de flechita: muestra TODOS los productos activos, sin escribir nada ---
+document.getElementById("fact-producto-desplegar").addEventListener("click", async () => {
+  const api = apiFact();
+  if (!api) return;
+  inputProductoBuscar.value = "";
+  const productos = await api.listar_productos(false, null);
+  pintarResultadosProducto(productos);
+});
 
 function seleccionarCliente(cliente) {
   clienteSeleccionado = { id: cliente.id, nombre: cliente.nombre };
@@ -251,6 +268,7 @@ document.getElementById("btn-cobrar").addEventListener("click", async () => {
   const datos = {
     cliente_id: clienteSeleccionado ? clienteSeleccionado.id : null,
     metodo_pago: metodoPago,
+    ncf: document.getElementById("fact-ncf").value,
     notas: document.getElementById("fact-notas").value,
     lineas: carrito.map((l) => ({
       producto_id: l.producto_id,
@@ -294,6 +312,7 @@ function reiniciarFactura() {
   document.getElementById("fact-cliente-chip-nombre").textContent = "Consumidor final";
   document.getElementById("fact-cliente-quitar").style.display = "none";
   document.getElementById("fact-metodo-pago").value = "Efectivo";
+  document.getElementById("fact-ncf").value = "";
   document.getElementById("fact-notas").value = "";
   pintarCarrito();
 }
@@ -306,7 +325,7 @@ async function cargarVentasRecientes() {
   tbody.innerHTML = "";
 
   if (!ventas || ventas.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-faint); padding:24px;">Todavía no hay ventas registradas.</td></tr>`;
+     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-faint); padding:24px;">Todavía no hay ventas registradas.</td></tr>`;
     return;
   }
 
@@ -317,13 +336,11 @@ async function cargarVentasRecientes() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="cell-mono">${v.numero}</td>
+      <td class="cell-mono">${v.ncf || "—"}</td>
       <td>${v.cliente_nombre}</td>
       <td>${v.metodo_pago}</td>
       <td>${badgeEstado}</td>
       <td class="cell-mono">${formatoMonedaFact(v.total)}</td>
-      <td><div class="cell-actions">
-        <button class="row-action" data-accion="pdf-factura" data-id="${v.id}" title="Ver PDF">${ICONO_PDF_FACT}</button>
-      </div></td>
     `;
     tbody.appendChild(tr);
   });

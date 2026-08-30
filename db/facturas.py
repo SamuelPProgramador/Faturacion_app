@@ -87,11 +87,12 @@ def crear(datos):
         cur = conn.execute(
             """
             INSERT INTO facturas
-                (numero, cliente_id, subtotal, impuesto, total, metodo_pago, estado, notas)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (numero, ncf, cliente_id, subtotal, impuesto, total, metodo_pago, estado, notas)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 numero,
+                (datos.get("ncf") or "").strip(),
                 cliente_id,
                 subtotal,
                 impuesto_total,

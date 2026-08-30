@@ -206,13 +206,17 @@
 
             <div class="card pos-block">
               <label class="pos-block-label">Cliente</label>
-              <div class="autocomplete-wrapper" id="fact-cliente-wrapper">
+                <div class="autocomplete-wrapper" id="fact-cliente-wrapper">
                 <div class="search-box">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <input type="text" id="fact-cliente-buscar" placeholder="Buscar cliente por nombre, código o teléfono..." autocomplete="off" />
+                  <button type="button" class="search-box-toggle" id="fact-cliente-desplegar" title="Ver todos los clientes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
                 </div>
                 <div class="autocomplete-results" id="fact-cliente-resultados"></div>
               </div>
+
               <div class="cliente-chip">
                 <span>👤</span>
                 <span id="fact-cliente-chip-nombre">Consumidor final</span>
@@ -222,13 +226,18 @@
 
             <div class="card pos-block">
               <label class="pos-block-label">Agregar productos</label>
-              <div class="autocomplete-wrapper" id="fact-producto-wrapper">
+              
+                <div class="autocomplete-wrapper" id="fact-producto-wrapper">
                 <div class="search-box">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <input type="text" id="fact-producto-buscar" placeholder="Buscar producto por nombre o código..." autocomplete="off" />
+                  <button type="button" class="search-box-toggle" id="fact-producto-desplegar" title="Ver todos los productos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
                 </div>
                 <div class="autocomplete-results" id="fact-producto-resultados"></div>
               </div>
+              
             </div>
 
             <div class="card table-card">
@@ -268,8 +277,12 @@
                 <span id="resumen-total">RD$ 0.00</span>
               </div>
 
-              <div class="form-field" style="margin-top:16px;">
+              <div class="form-field" >
                 <label>Método de pago</label>
+                <div class="form-field" style="margin-top:16px;">
+                <label>Comprobante Fiscal (NCF) — opcional</label>
+                <input type="text" id="fact-ncf" placeholder="Ej. B0100000123 (el que te dio tu contable)" style="font-family:var(--font-mono);" />
+              </div>
                 <select id="fact-metodo-pago">
                   <option value="Efectivo">Efectivo</option>
                   <option value="Tarjeta">Tarjeta</option>
@@ -298,6 +311,7 @@
             <thead>
               <tr>
                 <th>No. Factura</th>
+                <th>NCF</th>
                 <th>Cliente</th>
                 <th>Método</th>
                 <th>Estado</th>
