@@ -7,6 +7,7 @@ Opcionalmente se puede asociar a un proveedor del directorio.
 """
 
 from db.database import get_connection
+from db.database import get_connection, ahora_local
 
 CATEGORIAS = ["Materia Prima", "Gas", "Transporte", "Electricidad/Servicios", "Otros"]
 
@@ -75,7 +76,7 @@ def crear(datos):
         cur = conn.execute(
             """
             INSERT INTO gastos (categoria, concepto, monto, metodo_pago, proveedor_id, fecha, notas)
-            VALUES (?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 categoria,
@@ -83,7 +84,7 @@ def crear(datos):
                 monto,
                 datos.get("metodo_pago", "Efectivo"),
                 datos.get("proveedor_id"),
-                datos.get("fecha") or None,
+                datos.get("fecha") or ahora_local(),
                 (datos.get("notas") or "").strip(),
             ),
         )

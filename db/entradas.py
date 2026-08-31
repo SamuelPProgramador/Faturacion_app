@@ -11,6 +11,7 @@ correspondiente en CxP (cuentas por pagar) para ese proveedor.
 
 from datetime import datetime, timedelta
 from db.database import get_connection
+from db.database import get_connection, ahora_local
 
 
 def crear(datos):
@@ -70,23 +71,45 @@ def crear(datos):
         )
         entrada_id = cur.lastrowid
 
+        actualizar_costo = datos.get("actualizar_costo", True)
+        fecha_actual = ahora_local()
+
+        cur = conn.execute(
+            """
+            INSERT INTO entradas
+                (producto_id, cantidad, costo_unit, proveedor_id, metodo_pago, estado, fecha, notas)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                producto_id,
+                cantidad,
+                costo_unit,
+                proveedor_id,
+                metodo_pago,
+                "Pendiente" if metodo_pago == "Crédito" else "Pagada",
+                fecha_actual,
+                (datos.get("notas") or "").strip(),
+            ),
+        )
+        entrada_id = cur.lastrowid
+
         if actualizar_costo:
             conn.execute(
                 """
                 UPDATE productos
-                SET existencia = existencia + ?, costo = ?, actualizado_en = CURRENT_TIMESTAMP
+                SET existencia = existencia + ?, costo = ?, actualizado_en = ?
                 WHERE id = ?
                 """,
-                (cantidad, costo_unit, producto_id),
+                (cantidad, costo_unit, fecha_actual, producto_id),
             )
         else:
             conn.execute(
                 """
                 UPDATE productos
-                SET existencia = existencia + ?, actualizado_en = CURRENT_TIMESTAMP
+                SET existencia = existencia + ?, actualizado_en = ?
                 WHERE id = ?
                 """,
-                (cantidad, producto_id),
+                (cantidad, fecha_actual, producto_id),
             )
 
         # Si la compra es a credito, se genera la deuda con el proveedor (CxP)
@@ -100,10 +123,10 @@ def crear(datos):
 
             conn.execute(
                 """
-                INSERT INTO cxp (proveedor_id, entrada_id, monto_original, saldo_pendiente, fecha_vencim, estado)
-                VALUES (?, ?, ?, ?, ?, 'Pendiente')
+                INSERT INTO cxp (proveedor_id, entrada_id, monto_original, saldo_pendiente, fecha, fecha_vencim, estado)
+                VALUES (?, ?, ?, ?, ?, ?, 'Pendiente')
                 """,
-                (proveedor_id, entrada_id, total_entrada, total_entrada, fecha_venc),
+                (proveedor_id, entrada_id, total_entrada, total_entrada, fecha_actual, fecha_venc),
             )
 
         conn.commit()

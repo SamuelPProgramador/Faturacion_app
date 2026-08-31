@@ -6,6 +6,7 @@ crea db/entradas.py cuando una entrada se registra como compra a credito.
 """
 
 from db.database import get_connection
+from db.database import get_connection, ahora_local
 
 
 def generar_codigo():
@@ -199,8 +200,8 @@ def registrar_pago_cxp(cxp_id, monto, metodo_pago="Efectivo"):
         nuevo_saldo = round(cxp["saldo_pendiente"] - monto, 2)
 
         conn.execute(
-            "INSERT INTO cxp_pagos (cxp_id, monto, metodo_pago) VALUES (?, ?, ?)",
-            (cxp_id, monto, metodo_pago),
+            "INSERT INTO cxp_pagos (cxp_id, monto, metodo_pago, fecha) VALUES (?, ?, ?, ?)",
+            (cxp_id, monto, metodo_pago, ahora_local()),
         )
         conn.execute(
             "UPDATE cxp SET saldo_pendiente = ?, estado = ? WHERE id = ?",

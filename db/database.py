@@ -10,6 +10,7 @@ automaticamente la primera vez que se abre la app.
 
 import sqlite3
 import os
+from datetime import datetime
 
 # La base de datos vive junto al ejecutable, no dentro de los archivos
 # empaquetados, para que los datos del cliente nunca se pierdan al
@@ -25,6 +26,18 @@ def get_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+def ahora_local():
+    """
+    Fecha/hora LOCAL de la PC del negocio, en formato 'YYYY-MM-DD HH:MM:SS'.
+
+    IMPORTANTE: no usar el DEFAULT CURRENT_TIMESTAMP de SQLite para nada
+    que se compare despues como "hoy" - ese default guarda en UTC, y
+    Republica Dominicana esta 4 horas detras. Una venta hecha a las
+    8:00pm hora local ya cae en el dia siguiente en UTC, y desaparece
+    de "ventas de hoy" hasta que cambia el dia. Por eso TODO insert que
+    necesite fecha debe pasar esta funcion explicitamente.
+    """
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def init_db():
     """Crea todas las tablas del sistema si no existen todavia."""

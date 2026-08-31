@@ -10,6 +10,7 @@ cuando una factura se hace con metodo_pago='Crédito'. Aqui vive:
 
 from datetime import datetime
 from db.database import get_connection
+from db.database import get_connection, ahora_local
 
 
 def listar(incluir_pagadas=False, busqueda=None):
@@ -90,8 +91,8 @@ def registrar_pago(cxc_id, monto, metodo_pago="Efectivo"):
         nuevo_estado = "Pagada" if nuevo_saldo <= 0 else "Pendiente"
 
         conn.execute(
-            "INSERT INTO cxc_pagos (cxc_id, monto, metodo_pago) VALUES (?, ?, ?)",
-            (cxc_id, monto, metodo_pago),
+            "INSERT INTO cxc_pagos (cxc_id, monto, metodo_pago, fecha) VALUES (?, ?, ?, ?)",
+            (cxc_id, monto, metodo_pago, ahora_local()),
         )
         conn.execute(
             "UPDATE cxc SET saldo_pendiente = ?, estado = ? WHERE id = ?",
